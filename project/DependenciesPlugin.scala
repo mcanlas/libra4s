@@ -12,9 +12,6 @@ object DependenciesPlugin extends AutoPlugin {
       val circeVersion =
         "0.14.15"
 
-      val circeYamlVersion =
-        "0.16.1"
-
       def withEffectMonad: Project =
         p
           .settings(libraryDependencies += "org.typelevel" %% "cats-effect" % "3.7.0")
@@ -47,16 +44,16 @@ object DependenciesPlugin extends AutoPlugin {
             libraryDependencies ++= Seq(
               "org.http4s" %% "http4s-ember-server" % http4sVersion,
               "org.http4s" %% "http4s-dsl"          % http4sVersion,
-              "org.http4s" %% "http4s-scalatags"    % "0.25.2"
+              "org.http4s" %% "http4s-scalatags"    % "0.25.2",
+              "org.http4s" %% "http4s-circe"        % http4sVersion
             )
           )
 
-      def withYaml: Project =
+      def withJson: Project =
         p.settings(
           libraryDependencies ++= Seq(
             "io.circe" %% "circe-generic" % circeVersion,
             "io.circe" %% "circe-parser"  % circeVersion,
-            "io.circe" %% "circe-yaml"    % circeYamlVersion
           )
         )
 

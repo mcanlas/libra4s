@@ -13,12 +13,12 @@ document.addEventListener("DOMContentLoaded", () => {
     output.textContent = "Running...";
 
     try {
-      const response = await fetch(form.action, {
+      const response = await fetch("/compile", {
         method: "POST",
         headers: {
-          "Content-Type": "text/plain"
+          "Content-Type": "application/json"
         },
-        body: source.value
+        body: JSON.stringify({ code: source.value })
       });
 
       const text = await response.text();

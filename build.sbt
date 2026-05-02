@@ -8,6 +8,7 @@ lazy val web =
     .dependsOn(core)
     .withHttpServer
     .withHtmlTemplating
+    .withJson
     .withLogging
     .withTesting
     .enablePlugins(JavaAppPackaging, DockerPlugin)
