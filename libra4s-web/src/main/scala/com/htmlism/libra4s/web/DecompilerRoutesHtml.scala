@@ -8,12 +8,23 @@ object DecompilerRoutesHtml:
     html(
       head(
         meta(charset := "UTF-8"),
-        tag("title")("libra4s")
+        tag("title")("libra4s"),
+        link(rel   := "stylesheet", href := "/decompiler.css"),
+        script(src := "/decompiler.js")
       ),
       body(
-        h1("libra4s"),
-        form(method := "POST", action := "/list")(
-          button(`type` := "submit")("List /tmp")
+        div(cls := "page")(
+          form(id := "decompiler-form", method := "POST", action := "/list")(
+            div(cls := "actions")(
+              button(id := "submit", `type` := "submit")("Run")
+            ),
+            textarea(
+              id          := "source",
+              name        := "source",
+              placeholder := "Paste Scala source here"
+            )
+          ),
+          div(id := "output")
         )
       )
     )

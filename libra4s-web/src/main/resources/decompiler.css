@@ -1,0 +1,46 @@
+html, body {
+  margin: 0;
+  min-height: 100%;
+  font-family: sans-serif;
+}
+
+body {
+  min-height: 100vh;
+}
+
+.page {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+#decompiler-form {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+#source {
+  flex: 1;
+  width: 100%;
+  min-height: 10vh;
+  box-sizing: border-box;
+  font-family: monospace;
+}
+
+#output {
+  min-height: 160px;
+  padding: 12px;
+  border: 1px solid #ccc;
+  white-space: pre-wrap;
+  font-family: monospace;
+}
