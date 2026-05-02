@@ -27,8 +27,15 @@ document.addEventListener("DOMContentLoaded", () => {
         body: JSON.stringify({ code: source.value })
       });
 
-      const text = await response.text();
-      setOutput(text);
+      if (!response.ok) {
+        const text = await response.text();
+        setOutput(text);
+        return;
+      }
+
+      const payload = await response.json();
+      outputCompiler.textContent = payload.compiler?.lines ?? "";
+      outputDisassembly.textContent = Array.isArray(payload.javap?.lines) ? payload.javap.lines.join("\n") : "";
     } catch (error) {
       setOutput(error instanceof Error ? error.message : "Request failed");
     }

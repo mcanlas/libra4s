@@ -9,7 +9,13 @@ object ScalaCompiler:
   def runWithPhases(
       scalaFilePath: String
   ): IO[List[Phase]] =
-    for lines <- run(scalaFilePath)
+    runWithPhases(scalaFilePath, "/tmp")
+
+  def runWithPhases(
+      scalaFilePath: String,
+      outputDirectory: String
+  ): IO[List[Phase]] =
+    for lines <- run(scalaFilePath, outputDirectory)
     yield parseCompilerPhases(lines)
 
   private def parseCompilerPhases(
@@ -37,13 +43,19 @@ object ScalaCompiler:
   def run(
       scalaFilePath: String
   ): IO[List[String]] =
+    run(scalaFilePath, "/tmp")
+
+  def run(
+      scalaFilePath: String,
+      outputDirectory: String
+  ): IO[List[String]] =
     ProcessRunner.run(
       NonEmptyList.of(
         "scalac",
         "-Vprint:all",
         "-color:never",
         "-d",
-        "/tmp",
+        outputDirectory,
         scalaFilePath
       )
     )
