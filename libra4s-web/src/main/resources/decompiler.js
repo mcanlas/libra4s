@@ -1,16 +1,22 @@
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("decompiler-form");
   const source = document.getElementById("source");
-  const output = document.getElementById("output");
+  const outputCompiler = document.getElementById("output-compiler");
+  const outputDisassembly = document.getElementById("output-disassembly");
 
-  if (!(form instanceof HTMLFormElement) || !(source instanceof HTMLTextAreaElement) || !(output instanceof HTMLDivElement)) {
+  if (!(form instanceof HTMLFormElement) || !(source instanceof HTMLTextAreaElement) || !(outputCompiler instanceof HTMLDivElement) || !(outputDisassembly instanceof HTMLDivElement)) {
     return;
   }
+
+  const setOutput = text => {
+    outputCompiler.textContent = text;
+    outputDisassembly.textContent = text;
+  };
 
   form.addEventListener("submit", async event => {
     event.preventDefault();
 
-    output.textContent = "Running...";
+    setOutput("Running...");
 
     try {
       const response = await fetch("/compile", {
@@ -22,9 +28,9 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       const text = await response.text();
-      output.textContent = text;
+      setOutput(text);
     } catch (error) {
-      output.textContent = error instanceof Error ? error.message : "Request failed";
+      setOutput(error instanceof Error ? error.message : "Request failed");
     }
   });
 });

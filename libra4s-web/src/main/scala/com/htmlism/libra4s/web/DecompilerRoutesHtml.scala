@@ -14,7 +14,7 @@ object DecompilerRoutesHtml:
       ),
       body(
         div(cls := "page")(
-          form(id := "decompiler-form", method := "POST", action := "/list")(
+          form(id := "decompiler-form", method := "POST", action := "/compile")(
             div(cls := "actions")(
               button(id := "submit", `type` := "submit")("Run")
             ),
@@ -24,7 +24,16 @@ object DecompilerRoutesHtml:
               placeholder := "Paste Scala source here"
             )
           ),
-          div(id := "output")
+          div(id := "outputs")(
+            div(cls := "output-column")(
+              h2("Compiler Output"),
+              div(id := "output-compiler", cls := "output-body")
+            ),
+            div(cls := "output-column")(
+              h2("Disassembly Output"),
+              div(id := "output-disassembly", cls := "output-body")
+            )
+          )
         )
       )
     )
