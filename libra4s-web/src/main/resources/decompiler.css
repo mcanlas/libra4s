@@ -9,7 +9,7 @@ body {
 }
 
 .page {
-  min-height: 100vh;
+  height: 100vh;
   box-sizing: border-box;
   padding: 16px;
   display: flex;
@@ -18,7 +18,7 @@ body {
 }
 
 #decompiler-form {
-  flex: 1;
+  flex: 0 0 20vh;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -32,13 +32,15 @@ body {
 #source {
   flex: 1;
   width: 100%;
-  min-height: 10vh;
+  min-height: 0;
   box-sizing: border-box;
   font-family: monospace;
 }
 
 #output {
-  min-height: 160px;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
   padding: 12px;
   border: 1px solid #ccc;
   white-space: pre-wrap;
