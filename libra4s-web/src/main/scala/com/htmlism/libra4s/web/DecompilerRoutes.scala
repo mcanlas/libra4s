@@ -37,15 +37,25 @@ object DecompilerRoutes:
 
                 path
 
-              compilerPhases <- ScalaCompiler.runWithPhases(scalaFilePath.toString, tempDir.toString)
+              phasesResult <- ScalaCompiler.runWithPhases(scalaFilePath.toString, tempDir.toString)
 
-              classFilePath <- findFirstClassFile(tempDir)
+              // TODO change outgoing shape to have native error channel
+              res <- phasesResult match
+                case Left(err) =>
+                  InternalServerError(s"Compile error (exit ${err.exitCode}):\n${err.stderr.mkString("\n")}")
+                case Right(phases) =>
+                  for
+                    classFilePath <- findFirstClassFile(tempDir)
 
-              disassemblyLines <- classFilePath match
-                case Some(path) => JavaDisassembler.run(path.toString)
-                case None       => IO.pure(List("No class files generated"))
+                    disassemblyLines <- classFilePath match
+                      case Some(path) =>
+                        JavaDisassembler
+                          .run(path.toString)
+                          .map(_.fold(e => e.stderr, identity))
+                      case None => IO.pure(List("No class files generated"))
 
-              res <- Ok(CompileAndDisassembleResponse.from(compilerPhases, disassemblyLines))
+                    res <- Ok(CompileAndDisassembleResponse.from(phases, disassemblyLines))
+                  yield res
             yield res
           .merge
 

@@ -6,11 +6,11 @@ import cats.effect.*
 object JavaDisassembler:
   def run(
       classFilePath: String
-  ): IO[List[String]] =
+  ): IO[Either[ProcessRunner.ProcessRunnerError, List[String]]] =
     ProcessRunner.run(
       NonEmptyList.of(
         "javap",
-//        "-c",
+        "-c",
         classFilePath
       )
     )

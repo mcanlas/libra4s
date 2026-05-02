@@ -8,15 +8,14 @@ object ScalaCompiler:
 
   def runWithPhases(
       scalaFilePath: String
-  ): IO[List[Phase]] =
+  ): IO[Either[ProcessRunner.ProcessRunnerError, List[Phase]]] =
     runWithPhases(scalaFilePath, "/tmp")
 
   def runWithPhases(
       scalaFilePath: String,
       outputDirectory: String
-  ): IO[List[Phase]] =
-    for lines <- run(scalaFilePath, outputDirectory)
-    yield parseCompilerPhases(lines)
+  ): IO[Either[ProcessRunner.ProcessRunnerError, List[Phase]]] =
+    run(scalaFilePath, outputDirectory).map(_.map(parseCompilerPhases))
 
   private def parseCompilerPhases(
       lines: List[String]
@@ -42,13 +41,13 @@ object ScalaCompiler:
 
   def run(
       scalaFilePath: String
-  ): IO[List[String]] =
+  ): IO[Either[ProcessRunner.ProcessRunnerError, List[String]]] =
     run(scalaFilePath, "/tmp")
 
   def run(
       scalaFilePath: String,
       outputDirectory: String
-  ): IO[List[String]] =
+  ): IO[Either[ProcessRunner.ProcessRunnerError, List[String]]] =
     ProcessRunner.run(
       NonEmptyList.of(
         "scalac",

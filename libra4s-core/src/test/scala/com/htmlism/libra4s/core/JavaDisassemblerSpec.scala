@@ -21,10 +21,15 @@ object JavaDisassemblerSpec extends SimpleIOSuite:
       classFilePath = "/tmp/Cat.class"
 
       // Disassemble the class
-      disassemblyLines <- JavaDisassembler.run(classFilePath)
-    yield
-      val output = disassemblyLines.mkString("\n")
+      disassemblyResult <- JavaDisassembler.run(classFilePath)
+    yield (compileResult, disassemblyResult) match
+      case (Left(err), _) =>
+        failure(s"compilation failed with exit code ${err.exitCode}")
+      case (_, Left(err)) =>
+        failure(s"disassembly failed with exit code ${err.exitCode}")
+      case (Right(_), Right(lines)) =>
+        val output = lines.mkString("\n")
 
-      expect(disassemblyLines.nonEmpty) &&
-      expect(output.contains("Cat")) &&
-      expect(output.contains("public") || output.contains("class"))
+        expect(lines.nonEmpty) &&
+        expect(output.contains("Cat")) &&
+        expect(output.contains("public") || output.contains("class"))
