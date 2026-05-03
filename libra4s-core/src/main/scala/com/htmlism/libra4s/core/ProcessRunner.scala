@@ -26,11 +26,13 @@ object ProcessRunner:
     for
       logger = new ListProcessLogger
 
-      process <- IO.blocking:
-        args.toList.run(logger, connectInput = false)
+      process <- IO
+        .blocking:
+          args.toList.run(logger, connectInput = false)
 
-      exitCode <- IO.blocking:
-        process.exitValue()
+      exitCode <- IO
+        .blocking:
+          process.exitValue()
 
       res <-
         if exitCode == 0 then logger.getStdout.map(_.asRight)

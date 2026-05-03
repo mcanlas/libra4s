@@ -10,7 +10,8 @@ import org.http4s.server.middleware.Logger
 object Libra4sServiceApp extends ResourceApp.Forever:
   def run(args: List[String]): Resource[IO, Unit] =
     for
-      _ <- Resource.eval(IO.println("Starting libra4s service..."))
+      _ <- Resource
+        .eval(IO.println("Starting libra4s service..."))
 
       _ <- EmberServerBuilder
         .default[IO]

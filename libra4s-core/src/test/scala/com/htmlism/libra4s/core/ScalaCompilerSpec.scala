@@ -1,8 +1,5 @@
 package com.htmlism.libra4s.core
 
-import java.nio.file.Files
-
-import cats.effect.*
 import weaver.SimpleIOSuite
 
 object ScalaCompilerSpec extends SimpleIOSuite:
@@ -11,10 +8,13 @@ object ScalaCompilerSpec extends SimpleIOSuite:
     val scalaSource = """case class Dog(n: String)"""
 
     for
-      tempFilePath <- TempFileFactory.createTempFile("dog", ".scala")
-      _            <- IO.blocking(Files.writeString(tempFilePath, scalaSource))
+      tempFilePath <- FileSystemIO
+        .createTempFile("dog", ".scala")
+      _ <- FileSystemIO
+        .writeString(tempFilePath, scalaSource)
 
-      phasesResult <- ScalaCompiler.runWithPhases(tempFilePath.toString)
+      phasesResult <- ScalaCompiler
+        .runWithPhases(tempFilePath.toString)
     yield phasesResult match
       case Left(err) =>
         failure(s"compilation failed with exit code ${err.exitCode}")

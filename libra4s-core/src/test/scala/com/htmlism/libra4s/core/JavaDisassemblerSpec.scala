@@ -1,8 +1,5 @@
 package com.htmlism.libra4s.core
 
-import java.nio.file.Files
-
-import cats.effect.*
 import weaver.SimpleIOSuite
 
 object JavaDisassemblerSpec extends SimpleIOSuite:
@@ -11,17 +8,21 @@ object JavaDisassemblerSpec extends SimpleIOSuite:
     val scalaSource = """case class Cat(name: String)"""
 
     for
-      tempScalaPath <- TempFileFactory.createTempFile("cat", ".scala")
-      _             <- IO.blocking(Files.writeString(tempScalaPath, scalaSource))
+      tempScalaPath <- FileSystemIO
+        .createTempFile("cat", ".scala")
+      _ <- FileSystemIO
+        .writeString(tempScalaPath, scalaSource)
 
       // Compile the Scala file
-      compileResult <- ScalaCompiler.run(tempScalaPath.toString)
+      compileResult <- ScalaCompiler
+        .run(tempScalaPath.toString)
 
       // The compiler outputs to /tmp by default, so the class should be at /tmp/Cat.class
       classFilePath = "/tmp/Cat.class"
 
       // Disassemble the class
-      disassemblyResult <- JavaDisassembler.run(classFilePath)
+      disassemblyResult <- JavaDisassembler
+        .run(classFilePath)
     yield (compileResult, disassemblyResult) match
       case (Left(err), _) =>
         failure(s"compilation failed with exit code ${err.exitCode}")

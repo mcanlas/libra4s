@@ -1,17 +1,12 @@
 package com.htmlism.libra4s.web
 
-import java.nio.file.Files
-import java.nio.file.Path
-
-import scala.jdk.CollectionConverters.*
-
 import cats.effect.IO
-import cats.effect.Resource
 import org.http4s.circe.CirceEntityCodec.*
 import org.http4s.dsl.io.*
 import org.http4s.scalatags.*
 import org.http4s.{scalatags as _, *}
 
+import com.htmlism.libra4s.core.FileSystemIO
 import com.htmlism.libra4s.core.JavaDisassembler
 import com.htmlism.libra4s.core.ScalaCompiler
 
@@ -29,16 +24,17 @@ object DecompilerRoutes:
           .leftSemiflatMap(_ => BadRequest(ApiResponse.Failure("Invalid JSON body"): CompileApiResponse))
           .semiflatMap: compileReq =>
             for
-              tempDir <- IO.blocking(Files.createTempDirectory("libra4s-compile-"))
+              tempDir <- FileSystemIO
+                .createTempDirectory("libra4s-compile")
 
-              scalaFilePath <- IO.blocking:
-                val path = tempDir.resolve("Input.scala")
+              scalaFilePath <- FileSystemIO
+                .resolve(tempDir, "Input.scala")
 
-                Files.writeString(path, compileReq.code)
+              _ <- FileSystemIO
+                .writeString(scalaFilePath, compileReq.code)
 
-                path
-
-              phasesResult <- ScalaCompiler.runWithPhases(scalaFilePath.toString, tempDir.toString)
+              phasesResult <- ScalaCompiler
+                .runWithPhases(scalaFilePath.toString, tempDir.toString)
 
               res <- phasesResult match
                 case Left(err) =>
@@ -51,7 +47,8 @@ object DecompilerRoutes:
 
                 case Right(phases) =>
                   for
-                    classFilePath <- findFirstClassFile(tempDir)
+                    classFilePath <- FileSystemIO
+                      .findFirstChildBySuffix(tempDir, ".class")
 
                     disassemblyLines <- classFilePath match
                       case Some(path) =>
@@ -68,10 +65,3 @@ object DecompilerRoutes:
                   yield res
             yield res
           .merge
-
-  // scalac can emit multiple files; for this POC we pick one .class path to feed javap.
-  private def findFirstClassFile(tempDir: Path): IO[Option[Path]] =
-    Resource
-      .fromAutoCloseable(IO.blocking(Files.list(tempDir)))
-      .use: stream =>
-        IO.blocking(stream.iterator.asScala.find(_.getFileName.toString.endsWith(".class")))
