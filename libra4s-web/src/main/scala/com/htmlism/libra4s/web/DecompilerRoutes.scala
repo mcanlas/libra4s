@@ -16,6 +16,7 @@ import com.htmlism.libra4s.core.JavaDisassembler
 import com.htmlism.libra4s.core.ScalaCompiler
 
 object DecompilerRoutes:
+  private type CompileApiResponse = ApiResponse[String, CompileAndDisassembleResponse]
 
   lazy val routes: HttpRoutes[IO] =
     HttpRoutes.of[IO]:
@@ -25,7 +26,7 @@ object DecompilerRoutes:
       case req @ POST -> Root / "compile" =>
         req
           .attemptAs[CompileRequest]
-          .leftSemiflatMap(_ => BadRequest("Invalid JSON body"))
+          .leftSemiflatMap(_ => BadRequest(ApiResponse.Failure("Invalid JSON body"): CompileApiResponse))
           .semiflatMap: compileReq =>
             for
               tempDir <- IO.blocking(Files.createTempDirectory("libra4s-compile-"))
@@ -39,10 +40,15 @@ object DecompilerRoutes:
 
               phasesResult <- ScalaCompiler.runWithPhases(scalaFilePath.toString, tempDir.toString)
 
-              // TODO change outgoing shape to have native error channel
               res <- phasesResult match
                 case Left(err) =>
-                  InternalServerError(s"Compile error (exit ${err.exitCode}):\n${err.stderr.mkString("\n")}")
+                  InternalServerError(
+                    ApiResponse
+                      .Failure(
+                        s"Compile error (exit ${err.exitCode}):\n${err.stderr.mkString("\n")}"
+                      ): CompileApiResponse
+                  )
+
                 case Right(phases) =>
                   for
                     classFilePath <- findFirstClassFile(tempDir)
@@ -52,9 +58,13 @@ object DecompilerRoutes:
                         JavaDisassembler
                           .run(path.toString)
                           .map(_.fold(e => e.stderr, identity))
+
                       case None => IO.pure(List("No class files generated"))
 
-                    res <- Ok(CompileAndDisassembleResponse.from(phases, disassemblyLines))
+                    res <- Ok(
+                      ApiResponse
+                        .Success(CompileAndDisassembleResponse.from(phases, disassemblyLines)): CompileApiResponse
+                    )
                   yield res
             yield res
           .merge

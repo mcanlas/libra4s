@@ -27,15 +27,16 @@ document.addEventListener("DOMContentLoaded", () => {
         body: JSON.stringify({ code: source.value })
       });
 
-      if (!response.ok) {
-        const text = await response.text();
-        setOutput(text);
-        return;
-      }
-
       const payload = await response.json();
-      outputCompiler.textContent = payload.compiler?.lines ?? "";
-      outputDisassembly.textContent = Array.isArray(payload.javap?.lines) ? payload.javap.lines.join("\n") : "";
+
+      if (payload?.ok === true) {
+        const data = payload.data ?? {};
+        outputCompiler.textContent = data.compiler?.lines ?? "";
+        outputDisassembly.textContent = Array.isArray(data.javap?.lines) ? data.javap.lines.join("\n") : "";
+      } else {
+        const error = payload?.error;
+        setOutput(typeof error === "string" ? error : JSON.stringify(error ?? "Request failed", null, 2));
+      }
     } catch (error) {
       setOutput(error instanceof Error ? error.message : "Request failed");
     }
