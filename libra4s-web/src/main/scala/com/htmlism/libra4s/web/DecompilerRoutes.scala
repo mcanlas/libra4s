@@ -38,11 +38,9 @@ object DecompilerRoutes:
 
               res <- phasesResult match
                 case Left(err) =>
-                  InternalServerError(
+                  Ok(
                     ApiResponse
-                      .Failure(
-                        s"Compile error (exit ${err.exitCode}):\n${err.stderr.mkString("\n")}"
-                      ): CompileApiResponse
+                      .Success(CompileAndDisassembleResponse.fromCompileFailure(err)): CompileApiResponse
                   )
 
                 case Right(phases) =>
@@ -50,17 +48,24 @@ object DecompilerRoutes:
                     classFilePath <- FileSystemIO
                       .findFirstChildBySuffix(tempDir, ".class")
 
-                    disassemblyLines <- classFilePath match
+                    javapResult <- classFilePath match
                       case Some(path) =>
                         JavaDisassembler
                           .run(path.toString)
-                          .map(_.fold(e => e.stderr, identity))
 
-                      case None => IO.pure(List("No class files generated"))
+                      case None =>
+                        IO.pure(Right(List.empty[String]))
+
+                    response = classFilePath match
+                      case Some(_) =>
+                        CompileAndDisassembleResponse.fromCompileSuccess(phases, javapResult)
+
+                      case None =>
+                        CompileAndDisassembleResponse.fromCompileSuccessWithoutClass(phases)
 
                     res <- Ok(
                       ApiResponse
-                        .Success(CompileAndDisassembleResponse.from(phases, disassemblyLines)): CompileApiResponse
+                        .Success(response): CompileApiResponse
                     )
                   yield res
             yield res

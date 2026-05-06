@@ -8,6 +8,28 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
+  const formatLines = lines => Array.isArray(lines) ? lines.join("\n") : "";
+
+  const formatAttempt = (attempt, selectSuccessLines) => {
+    if (!attempt || typeof attempt !== "object") {
+      return "";
+    }
+
+    if (attempt.state === "success") {
+      return selectSuccessLines(attempt.value ?? {});
+    }
+
+    if (attempt.state === "failure") {
+      const error = attempt.error ?? {};
+      const exitCode = typeof error.exitCode === "number" ? `exit ${error.exitCode}` : "exit ?";
+      const lines = formatLines(error.lines);
+      return lines ? `${exitCode}\n${lines}` : exitCode;
+    }
+
+
+    return "";
+  };
+
   const setOutput = text => {
     outputCompiler.textContent = text;
     outputDisassembly.textContent = text;
@@ -31,8 +53,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (payload?.ok === true) {
         const data = payload.data ?? {};
-        outputCompiler.textContent = data.compiler?.lines ?? "";
-        outputDisassembly.textContent = Array.isArray(data.javap?.lines) ? data.javap.lines.join("\n") : "";
+        outputCompiler.textContent = formatAttempt(data.compiler, compiler => compiler.lines ?? "");
+        outputDisassembly.textContent = formatAttempt(data.javap, javap => formatLines(javap.lines));
       } else {
         const error = payload?.error;
         setOutput(typeof error === "string" ? error : JSON.stringify(error ?? "Request failed", null, 2));
