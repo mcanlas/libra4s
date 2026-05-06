@@ -26,6 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const code = escapeHtml(line.slice(0, i));
     const comment = escapeHtml(line.slice(i));
+
     return `${code}<span class="javap-comment">${comment}</span>`;
   };
 
@@ -66,6 +67,7 @@ document.addEventListener("DOMContentLoaded", () => {
         .map(item => {
           const exitCode = typeof item?.exitCode === "number" ? `exit ${item.exitCode}` : "exit ?";
           const lines = formatLines(item?.lines);
+
           return lines
             ? `${escapeHtml(exitCode)}\n${escapeHtml(lines)}`
             : escapeHtml(exitCode);
@@ -75,6 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const exitCode = typeof error?.exitCode === "number" ? `exit ${error.exitCode}` : "exit ?";
     const lines = formatLines(error?.lines);
+
     return lines ? `${escapeHtml(exitCode)}\n${escapeHtml(lines)}` : escapeHtml(exitCode);
   };
 
@@ -96,6 +99,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const setOutput = text => {
     const escaped = escapeHtml(text);
+
     outputCompiler.innerHTML = escaped;
     outputDisassembly.innerHTML = escaped;
   };
@@ -118,10 +122,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (payload?.ok === true) {
         const data = payload.data ?? {};
+
         outputCompiler.innerHTML = formatAttemptHtml(data.compiler, compiler => formatCompilerLinesHtml(compiler.lines));
         outputDisassembly.innerHTML = formatAttemptHtml(data.javap, javap => formatJavapOutputsHtml(javap.outputs));
       } else {
         const error = payload?.error;
+
         setOutput(typeof error === "string" ? error : JSON.stringify(error ?? "Request failed", null, 2));
       }
     } catch (error) {
