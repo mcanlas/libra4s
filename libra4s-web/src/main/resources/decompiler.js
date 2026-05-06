@@ -10,6 +10,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const formatLines = lines => Array.isArray(lines) ? lines.join("\n") : "";
 
+  const formatJavapOutputs = outputs => {
+    if (!Array.isArray(outputs)) {
+      return "";
+    }
+
+    return outputs
+      .map(output => {
+        const classFile = typeof output?.classFile === "string" ? output.classFile : "(unknown class)";
+        const lines = formatLines(output?.lines);
+        return lines ? `${classFile}\n${lines}` : classFile;
+      })
+      .join("\n\n");
+  };
+
   const formatAttempt = (attempt, selectSuccessLines) => {
     if (!attempt || typeof attempt !== "object") {
       return "";
@@ -21,6 +35,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (attempt.state === "failure") {
       const error = attempt.error ?? {};
+
+      if (Array.isArray(error.errors)) {
+        return error.errors
+          .map(item => {
+            const exitCode = typeof item?.exitCode === "number" ? `exit ${item.exitCode}` : "exit ?";
+            const lines = formatLines(item?.lines);
+            return lines ? `${exitCode}\n${lines}` : exitCode;
+          })
+          .join("\n\n");
+      }
+
       const exitCode = typeof error.exitCode === "number" ? `exit ${error.exitCode}` : "exit ?";
       const lines = formatLines(error.lines);
       return lines ? `${exitCode}\n${lines}` : exitCode;
@@ -54,7 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (payload?.ok === true) {
         const data = payload.data ?? {};
         outputCompiler.textContent = formatAttempt(data.compiler, compiler => compiler.lines ?? "");
-        outputDisassembly.textContent = formatAttempt(data.javap, javap => formatLines(javap.lines));
+        outputDisassembly.textContent = formatAttempt(data.javap, javap => formatJavapOutputs(javap.outputs));
       } else {
         const error = payload?.error;
         setOutput(typeof error === "string" ? error : JSON.stringify(error ?? "Request failed", null, 2));

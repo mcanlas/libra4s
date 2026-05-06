@@ -24,11 +24,16 @@ object FileSystemIO:
     IO.blocking:
       path.resolve(child)
 
-  def findFirstChildBySuffix(path: Path, suffix: String): IO[Option[Path]] =
+  def findChildrenBySuffix(path: Path, suffix: String): IO[List[Path]] =
     Resource
       .fromAutoCloseable:
         IO.blocking:
           Files.list(path)
       .use: stream =>
         IO.blocking:
-          stream.iterator.asScala.find(_.getFileName.toString.endsWith(suffix))
+          stream
+            .iterator
+            .asScala
+            .filter(_.getFileName.toString.endsWith(suffix))
+            .toList
+            .sortBy(_.getFileName.toString)

@@ -1,6 +1,7 @@
 package com.htmlism.libra4s.web
 
 import cats.effect.IO
+import cats.syntax.all.*
 import org.http4s.circe.CirceEntityCodec.*
 import org.http4s.dsl.io.*
 import org.http4s.scalatags.*
@@ -45,23 +46,20 @@ object DecompilerRoutes:
 
                 case Right(phases) =>
                   for
-                    classFilePath <- FileSystemIO
-                      .findFirstChildBySuffix(tempDir, ".class")
+                    classFiles <- FileSystemIO
+                      .findChildrenBySuffix(tempDir, ".class")
 
-                    javapResult <- classFilePath match
-                      case Some(path) =>
-                        JavaDisassembler
-                          .run(path.toString)
-
-                      case None =>
-                        IO.pure(Right(List.empty[String]))
-
-                    response = classFilePath match
-                      case Some(_) =>
-                        CompileAndDisassembleResponse.fromCompileSuccess(phases, javapResult)
-
-                      case None =>
-                        CompileAndDisassembleResponse.fromCompileSuccessWithoutClass(phases)
+                    response <-
+                      if classFiles.nonEmpty then
+                        classFiles
+                          .traverse: path =>
+                            JavaDisassembler
+                              .run(path.toString)
+                              .map(result => path.getFileName.toString -> result)
+                          .map(results => CompileAndDisassembleResponse.fromCompileSuccess(phases, results))
+                      else
+                        IO.pure:
+                          CompileAndDisassembleResponse.fromCompileSuccessWithoutClass(phases)
 
                     res <- Ok(
                       ApiResponse
