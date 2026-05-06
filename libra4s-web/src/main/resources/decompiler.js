@@ -10,7 +10,39 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const formatLines = lines => Array.isArray(lines) ? lines.join("\n") : "";
 
-  const formatJavapOutputs = outputs => {
+  const escapeHtml = text => String(text)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+
+  const formatLineWithCommentHighlight = line => {
+    const i = line.indexOf("//");
+
+    if (i < 0) {
+      return escapeHtml(line);
+    }
+
+    const code = escapeHtml(line.slice(0, i));
+    const comment = escapeHtml(line.slice(i));
+    return `${code}<span class="javap-comment">${comment}</span>`;
+  };
+
+  const formatCompilerLineWithPhaseHighlight = line => {
+    if (line.startsWith("[[") && line.includes("]]")) {
+      return `<span class="compiler-phase-header">${escapeHtml(line)}</span>`;
+    }
+
+    return escapeHtml(line);
+  };
+
+  const formatCompilerLinesHtml = linesText => String(linesText ?? "")
+    .split("\n")
+    .map(formatCompilerLineWithPhaseHighlight)
+    .join("\n");
+
+  const formatJavapOutputsHtml = outputs => {
     if (!Array.isArray(outputs)) {
       return "";
     }
@@ -18,46 +50,54 @@ document.addEventListener("DOMContentLoaded", () => {
     return outputs
       .map(output => {
         const classFile = typeof output?.classFile === "string" ? output.classFile : "(unknown class)";
-        const lines = formatLines(output?.lines);
-        return lines ? `${classFile}\n${lines}` : classFile;
+        const header = escapeHtml(classFile);
+        const lines = Array.isArray(output?.lines)
+          ? output.lines.map(formatLineWithCommentHighlight).join("\n")
+          : "";
+
+        return lines ? `${header}\n${lines}` : header;
       })
       .join("\n\n");
   };
 
-  const formatAttempt = (attempt, selectSuccessLines) => {
+  const formatFailureHtml = error => {
+    if (Array.isArray(error?.errors)) {
+      return error.errors
+        .map(item => {
+          const exitCode = typeof item?.exitCode === "number" ? `exit ${item.exitCode}` : "exit ?";
+          const lines = formatLines(item?.lines);
+          return lines
+            ? `${escapeHtml(exitCode)}\n${escapeHtml(lines)}`
+            : escapeHtml(exitCode);
+        })
+        .join("\n\n");
+    }
+
+    const exitCode = typeof error?.exitCode === "number" ? `exit ${error.exitCode}` : "exit ?";
+    const lines = formatLines(error?.lines);
+    return lines ? `${escapeHtml(exitCode)}\n${escapeHtml(lines)}` : escapeHtml(exitCode);
+  };
+
+  const formatAttemptHtml = (attempt, selectSuccessHtml) => {
     if (!attempt || typeof attempt !== "object") {
       return "";
     }
 
     if (attempt.state === "success") {
-      return selectSuccessLines(attempt.value ?? {});
+      return selectSuccessHtml(attempt.value ?? {});
     }
 
     if (attempt.state === "failure") {
-      const error = attempt.error ?? {};
-
-      if (Array.isArray(error.errors)) {
-        return error.errors
-          .map(item => {
-            const exitCode = typeof item?.exitCode === "number" ? `exit ${item.exitCode}` : "exit ?";
-            const lines = formatLines(item?.lines);
-            return lines ? `${exitCode}\n${lines}` : exitCode;
-          })
-          .join("\n\n");
-      }
-
-      const exitCode = typeof error.exitCode === "number" ? `exit ${error.exitCode}` : "exit ?";
-      const lines = formatLines(error.lines);
-      return lines ? `${exitCode}\n${lines}` : exitCode;
+      return formatFailureHtml(attempt.error ?? {});
     }
-
 
     return "";
   };
 
   const setOutput = text => {
-    outputCompiler.textContent = text;
-    outputDisassembly.textContent = text;
+    const escaped = escapeHtml(text);
+    outputCompiler.innerHTML = escaped;
+    outputDisassembly.innerHTML = escaped;
   };
 
   form.addEventListener("submit", async event => {
@@ -78,8 +118,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (payload?.ok === true) {
         const data = payload.data ?? {};
-        outputCompiler.textContent = formatAttempt(data.compiler, compiler => compiler.lines ?? "");
-        outputDisassembly.textContent = formatAttempt(data.javap, javap => formatJavapOutputs(javap.outputs));
+        outputCompiler.innerHTML = formatAttemptHtml(data.compiler, compiler => formatCompilerLinesHtml(compiler.lines));
+        outputDisassembly.innerHTML = formatAttemptHtml(data.javap, javap => formatJavapOutputsHtml(javap.outputs));
       } else {
         const error = payload?.error;
         setOutput(typeof error === "string" ? error : JSON.stringify(error ?? "Request failed", null, 2));
