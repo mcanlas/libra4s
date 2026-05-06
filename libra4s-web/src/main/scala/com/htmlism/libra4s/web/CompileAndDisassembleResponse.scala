@@ -14,8 +14,8 @@ object ProcessErrorResponse:
   given Encoder[ProcessErrorResponse] = deriveEncoder
 
 enum StageAttempt[+E, +A]:
-  case Success[A](value: A) extends StageAttempt[Nothing, A]
-  case Failure[E](error: E) extends StageAttempt[E, Nothing]
+  case Success(value: A) extends StageAttempt[Nothing, A]
+  case Failure(error: E) extends StageAttempt[E, Nothing]
 
 object StageAttempt:
   given [E: Encoder, A: Encoder]: Encoder.AsObject[StageAttempt[E, A]] =
@@ -25,13 +25,13 @@ object StageAttempt:
         case Success(value) =>
           JsonObject(
             "state" -> "success".asJson,
-            "value" -> summon[Encoder[A]].apply(value)
+            "value" -> value.asJson
           )
 
         case Failure(error) =>
           JsonObject(
             "state" -> "failure".asJson,
-            "error" -> summon[Encoder[E]].apply(error)
+            "error" -> error.asJson
           )
 
 final case class JavapErrorResponse(errors: List[ProcessErrorResponse])
