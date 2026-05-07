@@ -47,8 +47,8 @@
 
 ## pane-stage-icons
 
-- [ ] Pane headers show stage icons derived from attempt state (success/failure/skipped/running)
-- [ ] Icons update correctly across repeated runs
+- [x] Pane headers show stage icons derived from attempt state (success/failure/skipped/running)
+- [x] Icons update correctly across repeated runs
 
 ## running-indicator
 

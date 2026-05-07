@@ -26,11 +26,17 @@ object DecompilerRoutesHtml:
           ),
           div(id := "outputs")(
             div(cls := "output-column")(
-              h2("Compiler Output"),
+              h2(
+                span(cls := "pane-title")("Compiler Output"),
+                span(id := "compiler-stage-icon", cls := "stage-icon", attr("aria-live") := "polite")
+              ),
               div(id := "output-compiler", cls := "output-body")
             ),
             div(cls := "output-column")(
-              h2("Disassembly Output"),
+              h2(
+                span(cls := "pane-title")("Disassembly Output"),
+                span(id := "disassembly-stage-icon", cls := "stage-icon", attr("aria-live") := "polite")
+              ),
               div(id := "output-disassembly", cls := "output-body")
             )
           )

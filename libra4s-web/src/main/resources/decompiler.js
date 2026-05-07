@@ -1,10 +1,19 @@
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("decompiler-form");
   const source = document.getElementById("source");
+  const compilerStageIcon = document.getElementById("compiler-stage-icon");
+  const disassemblyStageIcon = document.getElementById("disassembly-stage-icon");
   const outputCompiler = document.getElementById("output-compiler");
   const outputDisassembly = document.getElementById("output-disassembly");
 
-  if (!(form instanceof HTMLFormElement) || !(source instanceof HTMLTextAreaElement) || !(outputCompiler instanceof HTMLDivElement) || !(outputDisassembly instanceof HTMLDivElement)) {
+  if (
+    !(form instanceof HTMLFormElement) ||
+    !(source instanceof HTMLTextAreaElement) ||
+    !(compilerStageIcon instanceof HTMLSpanElement) ||
+    !(disassemblyStageIcon instanceof HTMLSpanElement) ||
+    !(outputCompiler instanceof HTMLDivElement) ||
+    !(outputDisassembly instanceof HTMLDivElement)
+  ) {
     return;
   }
 
@@ -91,6 +100,69 @@ document.addEventListener("DOMContentLoaded", () => {
   const hasCompilerPhases = compiler =>
     Array.isArray(compiler?.value?.phases) && compiler.value.phases.length > 0;
 
+  const stageIcons = {
+    // no icon for idle state
+    idle: { icon: "", label: "" },
+
+    // U+23F3 hourglass not done
+    running: { icon: "\u23f3", label: "Running" },
+
+    // U+2705 white heavy check mark
+    success: { icon: "\u2705", label: "Succeeded" },
+
+    // U+274C cross mark
+    failure: { icon: "\u274c", label: "Failed" },
+
+    // U+23ED + VS16 next track button
+    skipped: { icon: "\u23ed\ufe0f", label: "Skipped" }
+  };
+
+  const setStageIcon = (element, status) => {
+    const icon = stageIcons[status] ?? stageIcons.idle;
+
+    element.textContent = icon.icon;
+    element.title = icon.label;
+    element.setAttribute("aria-label", icon.label);
+  };
+
+  const setStageIcons = (compilerStatus, disassemblyStatus) => {
+    setStageIcon(compilerStageIcon, compilerStatus);
+    setStageIcon(disassemblyStageIcon, disassemblyStatus);
+  };
+
+  const processErrorLines = error => {
+    if (Array.isArray(error?.errors)) {
+      return error.errors.flatMap(item => Array.isArray(item?.lines) ? item.lines : []);
+    }
+
+    return Array.isArray(error?.lines) ? error.lines : [];
+  };
+
+  const isSkippedJavapAttempt = attempt => {
+    if (attempt?.state !== "failure") {
+      return false;
+    }
+
+    return processErrorLines(attempt.error)
+      .some(line => line === "Compilation failed" || line === "No class files generated");
+  };
+
+  const stageStatus = (attempt, skipped) => {
+    if (skipped === true) {
+      return "skipped";
+    }
+
+    if (attempt?.state === "success") {
+      return "success";
+    }
+
+    if (attempt?.state === "failure") {
+      return "failure";
+    }
+
+    return "idle";
+  };
+
   const formatJavapOutputsHtml = outputs => {
     if (!Array.isArray(outputs)) {
       return "";
@@ -169,6 +241,7 @@ document.addEventListener("DOMContentLoaded", () => {
   form.addEventListener("submit", async event => {
     event.preventDefault();
 
+    setStageIcons("running", "running");
     setOutput("Running...");
 
     try {
@@ -189,13 +262,19 @@ document.addEventListener("DOMContentLoaded", () => {
         outputCompiler.classList.toggle("has-structured-output", hasCompilerPhases(data.compiler));
         outputDisassembly.innerHTML = formatAttemptHtml(data.javap, javap => formatJavapOutputsHtml(javap.outputs));
         outputDisassembly.classList.remove("has-structured-output");
+        setStageIcons(
+          stageStatus(data.compiler, false),
+          stageStatus(data.javap, isSkippedJavapAttempt(data.javap))
+        );
       } else {
         const error = payload?.error;
 
         setOutput(typeof error === "string" ? error : JSON.stringify(error ?? "Request failed", null, 2));
+        setStageIcons("failure", "failure");
       }
     } catch (error) {
       setOutput(error instanceof Error ? error.message : "Request failed");
+      setStageIcons("failure", "failure");
     }
   });
 });
