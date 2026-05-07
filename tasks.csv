@@ -7,7 +7,6 @@ disassembler-attempt,true,process-runner-attempt,Return javap stage output as an
 recursive-class-search,true,disassembler-attempt,Search for generated class files recursively instead of only one directory level.
 api-attempt-schema,true,"compiler-attempt,disassembler-attempt",Expose compiler and disassembler attempts through the compile API response.
 compile-failure-ui,true,api-attempt-schema,Render compiler ProcessError exit code and lines in the left pane when compilation fails.
-skipped-disassembly-ui,false,api-attempt-schema,Render disassembly as skipped when no class file exists after compile failure.
 collapsible-phases,false,api-attempt-schema,Render compiler phases as collapsible left-pane sections.
 pane-stage-icons,false,api-attempt-schema,Show compiler and disassembler stage result icons in their respective pane headers.
 running-indicator,false,api-attempt-schema,Add a separate running indicator outside the two output panes.

@@ -39,10 +39,6 @@
 - [x] Left pane shows compiler failure details from API data, including exit code and lines
 - [x] Compile failure state renders without breaking right-pane behavior
 
-## skipped-disassembly-ui
-
-- [ ] Right pane has a distinct skipped state
-- [ ] Skip reason is shown when class generation did not occur
 
 ## collapsible-phases
 
