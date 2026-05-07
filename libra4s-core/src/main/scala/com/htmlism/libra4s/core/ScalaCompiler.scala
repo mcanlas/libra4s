@@ -1,10 +1,28 @@
 package com.htmlism.libra4s.core
 
+import java.nio.file.Path
+
 import cats.data.NonEmptyList
 import cats.effect.*
 
 object ScalaCompiler:
   final case class Phase(hint: String, lines: List[String])
+
+  def compileCode(
+      code: String
+  ): IO[(Path, Either[ProcessRunner.ProcessRunnerError, List[Phase]])] =
+    for
+      tempDir <- FileSystemIO
+        .createTempDirectory("libra4s-compile")
+
+      scalaFilePath <- FileSystemIO
+        .resolve(tempDir, "Input.scala")
+
+      _ <- FileSystemIO
+        .writeString(scalaFilePath, code)
+
+      phasesResult <- runWithPhases(scalaFilePath.toString, tempDir.toString)
+    yield (tempDir, phasesResult)
 
   def runWithPhases(
       scalaFilePath: String

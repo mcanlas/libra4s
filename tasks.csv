@@ -4,7 +4,7 @@ process-error,true,prd-draft,"Define ProcessError(exitCode: Int, lines: List[Str
 process-runner-attempt,true,process-error,"Change process execution to return Either[ProcessError, A] instead of losing non-zero exits as failed effects."
 compiler-attempt,true,process-runner-attempt,Return compiler stage output as an attempt with structured success or ProcessError.
 disassembler-attempt,true,process-runner-attempt,Return javap stage output as an attempt with structured success or ProcessError.
-recursive-class-search,false,disassembler-attempt,Search for generated class files recursively instead of only one directory level.
+recursive-class-search,true,disassembler-attempt,Search for generated class files recursively instead of only one directory level.
 api-attempt-schema,true,"compiler-attempt,disassembler-attempt",Expose compiler and disassembler attempts through the compile API response.
 compile-failure-ui,true,api-attempt-schema,Render compiler ProcessError exit code and lines in the left pane when compilation fails.
 skipped-disassembly-ui,false,api-attempt-schema,Render disassembly as skipped when no class file exists after compile failure.

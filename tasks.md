@@ -25,9 +25,9 @@
 
 ## recursive-class-search
 
-- [ ] Class-file discovery searches recursively under the compile output directory
-- [ ] Nested package class files are included in disassembly input
-- [ ] No-class behavior remains unchanged when no class files exist anywhere in the tree
+- [x] Class-file discovery searches recursively under the compile output directory
+- [x] Nested package class files are included in disassembly input
+- [x] No-class behavior remains unchanged when no class files exist anywhere in the tree
 
 ## api-attempt-schema
 

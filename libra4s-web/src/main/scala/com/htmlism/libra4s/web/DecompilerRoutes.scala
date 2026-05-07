@@ -25,29 +25,20 @@ object DecompilerRoutes:
           .leftSemiflatMap(_ => BadRequest(ApiResponse.Failure("Invalid JSON body"): CompileApiResponse))
           .semiflatMap: compileReq =>
             for
-              tempDir <- FileSystemIO
-                .createTempDirectory("libra4s-compile")
+              compileResult <- ScalaCompiler
+                .compileCode(compileReq.code)
 
-              scalaFilePath <- FileSystemIO
-                .resolve(tempDir, "Input.scala")
-
-              _ <- FileSystemIO
-                .writeString(scalaFilePath, compileReq.code)
-
-              phasesResult <- ScalaCompiler
-                .runWithPhases(scalaFilePath.toString, tempDir.toString)
-
-              res <- phasesResult match
-                case Left(err) =>
+              res <- compileResult match
+                case (_, Left(err)) =>
                   Ok(
                     ApiResponse
                       .Success(CompileAndDisassembleResponse.fromCompileFailure(err)): CompileApiResponse
                   )
 
-                case Right(phases) =>
+                case (tempDir, Right(phases)) =>
                   for
                     classFiles <- FileSystemIO
-                      .findChildrenBySuffix(tempDir, ".class")
+                      .findClassFiles(tempDir)
 
                     response <-
                       if classFiles.nonEmpty then
