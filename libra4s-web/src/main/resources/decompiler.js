@@ -43,6 +43,54 @@ document.addEventListener("DOMContentLoaded", () => {
     .map(formatCompilerLineWithPhaseHighlight)
     .join("\n");
 
+  const expandedCompilerPhaseKeys = new Map();
+
+  const stablePhaseKey = (phase, index, phaseCounts) => {
+    const hint = typeof phase?.hint === "string" && phase.hint.length > 0
+      ? phase.hint
+      : `phase-${index + 1}`;
+    const count = (phaseCounts.get(hint) ?? 0) + 1;
+
+    phaseCounts.set(hint, count);
+
+    return count === 1 ? hint : `${hint} #${count}`;
+  };
+
+  const formatCompilerPhasesHtml = phases => {
+    if (!Array.isArray(phases) || phases.length === 0) {
+      return "";
+    }
+
+    const phaseCounts = new Map();
+
+    return `<div class="compiler-phases">${phases
+      .map((phase, index) => {
+        const key = stablePhaseKey(phase, index, phaseCounts);
+        const hint = typeof phase?.hint === "string" && phase.hint.length > 0
+          ? phase.hint
+          : `Phase ${index + 1}`;
+        const lines = Array.isArray(phase?.lines) ? phase.lines.join("\n") : "";
+        const open = expandedCompilerPhaseKeys.has(key)
+          ? expandedCompilerPhaseKeys.get(key) === true
+          : index === 0;
+
+        return `<details class="compiler-phase" data-phase-key="${escapeHtml(key)}"${open ? " open" : ""}>
+  <summary class="compiler-phase-summary">${escapeHtml(hint)}</summary>
+  <pre class="compiler-phase-lines">${escapeHtml(lines)}</pre>
+</details>`;
+      })
+      .join("")}</div>`;
+  };
+
+  const formatCompilerSuccessHtml = compiler => {
+    const phasesHtml = formatCompilerPhasesHtml(compiler.phases);
+
+    return phasesHtml || formatCompilerLinesHtml(compiler.lines);
+  };
+
+  const hasCompilerPhases = compiler =>
+    Array.isArray(compiler?.value?.phases) && compiler.value.phases.length > 0;
+
   const formatJavapOutputsHtml = outputs => {
     if (!Array.isArray(outputs)) {
       return "";
@@ -100,9 +148,23 @@ document.addEventListener("DOMContentLoaded", () => {
   const setOutput = text => {
     const escaped = escapeHtml(text);
 
+    outputCompiler.classList.remove("has-structured-output");
+    outputDisassembly.classList.remove("has-structured-output");
     outputCompiler.innerHTML = escaped;
     outputDisassembly.innerHTML = escaped;
   };
+
+  outputCompiler.addEventListener("toggle", event => {
+    const target = event.target;
+
+    if (target instanceof HTMLDetailsElement && target.classList.contains("compiler-phase")) {
+      const key = target.dataset.phaseKey;
+
+      if (typeof key === "string") {
+        expandedCompilerPhaseKeys.set(key, target.open);
+      }
+    }
+  }, true);
 
   form.addEventListener("submit", async event => {
     event.preventDefault();
@@ -123,8 +185,10 @@ document.addEventListener("DOMContentLoaded", () => {
       if (payload?.ok === true) {
         const data = payload.data ?? {};
 
-        outputCompiler.innerHTML = formatAttemptHtml(data.compiler, compiler => formatCompilerLinesHtml(compiler.lines));
+        outputCompiler.innerHTML = formatAttemptHtml(data.compiler, formatCompilerSuccessHtml);
+        outputCompiler.classList.toggle("has-structured-output", hasCompilerPhases(data.compiler));
         outputDisassembly.innerHTML = formatAttemptHtml(data.javap, javap => formatJavapOutputsHtml(javap.outputs));
+        outputDisassembly.classList.remove("has-structured-output");
       } else {
         const error = payload?.error;
 

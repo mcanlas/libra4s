@@ -68,6 +68,38 @@ body {
   font-family: monospace;
 }
 
+.output-body.has-structured-output {
+  white-space: normal;
+}
+
+.compiler-phases {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.compiler-phase {
+  border: 1px solid #ddd;
+}
+
+.compiler-phase-summary {
+  cursor: pointer;
+  padding: 8px 10px;
+  color: #555;
+  background: #f7f7f7;
+  font-family: monospace;
+  white-space: normal;
+}
+
+.compiler-phase-lines {
+  margin: 0;
+  padding: 10px;
+  border-top: 1px solid #ddd;
+  overflow: auto;
+  white-space: pre;
+  font-family: monospace;
+}
+
 .javap-comment {
   color: #BBB;
 }

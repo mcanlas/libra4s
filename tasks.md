@@ -42,8 +42,8 @@
 
 ## collapsible-phases
 
-- [ ] Compiler phases render as collapsible sections keyed by phase hint
-- [ ] Expand/collapse state is deterministic on rerender
+- [x] Compiler phases render as collapsible sections keyed by phase hint
+- [x] Expand/collapse state is deterministic on rerender
 
 ## pane-stage-icons
 
