@@ -9,7 +9,7 @@ api-attempt-schema,true,"compiler-attempt,disassembler-attempt",Expose compiler 
 compile-failure-ui,true,api-attempt-schema,Render compiler ProcessError exit code and lines in the left pane when compilation fails.
 collapsible-phases,true,api-attempt-schema,Render compiler phases as collapsible left-pane sections.
 pane-stage-icons,true,api-attempt-schema,Show compiler and disassembler stage result icons in their respective pane headers.
-running-indicator,false,api-attempt-schema,Add a separate running indicator outside the two output panes.
+running-indicator,false,api-attempt-schema,Show a running indicator label to the left of the Run button and reuse the existing hourglass icon while a request is active
 last-request-wins,false,running-indicator,Ensure stale async responses cannot overwrite the newest request result.
 explicit-run-async,false,"running-indicator,last-request-wins",Keep async submission tied to the explicit Run action.
 hash-model,false,api-attempt-schema,Define deterministic request hashes that include source and relevant stage options.

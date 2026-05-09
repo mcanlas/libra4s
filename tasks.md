@@ -52,8 +52,9 @@
 
 ## running-indicator
 
-- [ ] A separate running indicator appears outside both panes during active requests
-- [ ] Indicator clears on terminal response paths (success and failure)
+- [ ] While a run is in flight, show hourglass icon and status text immediately left of the `Run` button
+- [ ] Reuse the same hourglass visual already used for running stage state
+- [ ] Hide or clear the indicator on every terminal path (success, compile failure, disassembly failure, malformed request)
 
 ## last-request-wins
 
