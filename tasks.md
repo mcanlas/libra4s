@@ -52,9 +52,9 @@
 
 ## running-indicator
 
-- [ ] While a run is in flight, show hourglass icon and status text immediately left of the `Run` button
-- [ ] Reuse the same hourglass visual already used for running stage state
-- [ ] Hide or clear the indicator on every terminal path (success, compile failure, disassembly failure, malformed request)
+- [x] While a run is in flight, show hourglass icon and status text immediately left of the `Run` button
+- [x] Reuse the same hourglass visual already used for running stage state
+- [x] Hide or clear the indicator on every terminal path (success, compile failure, disassembly failure, malformed request)
 
 ## last-request-wins
 

@@ -5,6 +5,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const disassemblyStageIcon = document.getElementById("disassembly-stage-icon");
   const outputCompiler = document.getElementById("output-compiler");
   const outputDisassembly = document.getElementById("output-disassembly");
+  const runIndicator = document.getElementById("run-indicator");
+  const runIndicatorIcon = document.getElementById("run-indicator-icon");
+  const runIndicatorText = document.getElementById("run-indicator-text");
 
   if (
     !(form instanceof HTMLFormElement) ||
@@ -12,7 +15,10 @@ document.addEventListener("DOMContentLoaded", () => {
     !(compilerStageIcon instanceof HTMLSpanElement) ||
     !(disassemblyStageIcon instanceof HTMLSpanElement) ||
     !(outputCompiler instanceof HTMLDivElement) ||
-    !(outputDisassembly instanceof HTMLDivElement)
+    !(outputDisassembly instanceof HTMLDivElement) ||
+    !(runIndicator instanceof HTMLSpanElement) ||
+    !(runIndicatorIcon instanceof HTMLSpanElement) ||
+    !(runIndicatorText instanceof HTMLSpanElement)
   ) {
     return;
   }
@@ -130,6 +136,22 @@ document.addEventListener("DOMContentLoaded", () => {
     setStageIcon(disassemblyStageIcon, disassemblyStatus);
   };
 
+  const runIndicatorStates = {
+    idle: { icon: "", label: "" },
+    running: stageIcons.running,
+    done: { icon: stageIcons.success.icon, label: "Done" }
+  };
+
+  const setRunningIndicator = state => {
+    const indicator = runIndicatorStates[state] ?? runIndicatorStates.idle;
+    const isIdle = state === "idle";
+
+    runIndicator.hidden = isIdle;
+    runIndicatorIcon.textContent = indicator.icon;
+    runIndicatorText.textContent = indicator.label;
+    runIndicator.setAttribute("aria-label", indicator.label);
+  };
+
   const processErrorLines = error => {
     if (Array.isArray(error?.errors)) {
       return error.errors.flatMap(item => Array.isArray(item?.lines) ? item.lines : []);
@@ -241,6 +263,7 @@ document.addEventListener("DOMContentLoaded", () => {
   form.addEventListener("submit", async event => {
     event.preventDefault();
 
+    setRunningIndicator("running");
     setStageIcons("running", "running");
     setOutput("Running...");
 
@@ -275,6 +298,8 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (error) {
       setOutput(error instanceof Error ? error.message : "Request failed");
       setStageIcons("failure", "failure");
+    } finally {
+      setRunningIndicator("done");
     }
   });
 });

@@ -16,6 +16,10 @@ object DecompilerRoutesHtml:
         div(cls := "page")(
           form(id := "decompiler-form", method := "POST", action := "/compile")(
             div(cls := "actions")(
+              span(id := "run-indicator", cls := "run-indicator", attr("aria-live") := "polite", hidden := true)(
+                span(id := "run-indicator-icon", cls := "stage-icon"),
+                span(id := "run-indicator-text")
+              ),
               button(id := "submit", `type` := "submit")("Run")
             ),
             textarea(
