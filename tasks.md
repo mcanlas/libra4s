@@ -65,6 +65,12 @@
 
 - [ ] Async execution is triggered only by explicit Run submission
 
+## persist-source-cookie
+
+- [ ] Source textarea value is written to a cookie when the user edits content
+- [ ] Saved cookie value is restored into the source textarea on page load
+- [ ] Empty or missing cookie does not overwrite the placeholder or default UI state
+
 ## hash-model
 
 - [ ] Hash input is canonical and deterministic for equivalent source/options

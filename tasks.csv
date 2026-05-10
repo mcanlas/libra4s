@@ -12,6 +12,7 @@ pane-stage-icons,true,api-attempt-schema,Show compiler and disassembler stage re
 running-indicator,true,api-attempt-schema,Show a running indicator label to the left of the Run button and reuse the existing hourglass icon while a request is active
 last-request-wins,false,running-indicator,Ensure stale async responses cannot overwrite the newest request result.
 explicit-run-async,false,"running-indicator,last-request-wins",Keep async submission tied to the explicit Run action.
+persist-source-cookie,false,explicit-run-async,Save source form text to a cookie and load it on page initialization.
 hash-model,false,api-attempt-schema,Define deterministic request hashes that include source and relevant stage options.
 compiler-cache,false,"hash-model,compiler-attempt",Cache compiler results by compiler-specific hash.
 disassembler-cache,false,"hash-model,disassembler-attempt",Cache disassembler results by disassembler-specific hash.
