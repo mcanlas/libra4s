@@ -65,11 +65,11 @@
 
 - [ ] Async execution is triggered only by explicit Run submission
 
-## persist-source-cookie
+## persist-source-local-storage
 
-- [ ] Source textarea value is written to a cookie when the user edits content
-- [ ] Saved cookie value is restored into the source textarea on page load
-- [ ] Empty or missing cookie does not overwrite the placeholder or default UI state
+- [ ] Source textarea value is written to local storage when the user edits content
+- [ ] Saved local storage value is restored into the source textarea on page load
+- [ ] Empty or missing local storage value does not overwrite the placeholder or default UI state
 
 ## hash-model
 
