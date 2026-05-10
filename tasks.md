@@ -101,6 +101,12 @@
 - [ ] UI exposes researched `javap` options and sends selections through request/hash
 - [ ] Backend honors selected `javap` options during execution
 
+## javap-line-numbers
+
+- [ ] `javap` execution includes line number table output for compiled classes
+- [ ] Backend parses line number entries into structured class/method mappings
+- [ ] API response exposes parsed line mappings without breaking existing disassembly output
+
 ## compare-snippets
 
 - [ ] UI supports two snippet inputs with isolated compiler/disassembler outputs per snippet

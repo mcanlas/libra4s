@@ -19,4 +19,5 @@ disassembler-cache,false,"hash-model,disassembler-attempt",Cache disassembler re
 option-research,false,prd-draft,Research useful compiler and javap options before adding checkbox controls.
 compiler-options,false,"option-research,compiler-cache",Add compiler option checkboxes only after research identifies useful options.
 javap-options,false,"option-research,disassembler-cache",Add javap option checkboxes only after research identifies useful options.
+javap-line-numbers,false,javap-options,Enable javap line number table output and parse line mappings into structured response data.
 compare-snippets,false,"compiler-cache,disassembler-cache,collapsible-phases,pane-stage-icons",Support comparing two Scala snippets and generated outputs side by side.
