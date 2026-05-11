@@ -1,10 +1,23 @@
 package com.htmlism.libra4s.core
 
-import weaver.SimpleIOSuite
+import cats.effect.*
+import cats.effect.std.Env
+import cats.syntax.all.*
+import weaver.*
 
-object ScalaCompilerSpec extends SimpleIOSuite:
+object ScalaCompilerSpec extends IOSuite:
+  type Res = Boolean
 
-  test("parseCompilerPhases extracts phase hints and groups content"):
+  def sharedResource: Resource[IO, Boolean] =
+    Resource.eval(
+      Env
+        .make[IO]
+        .get("HAS_SCALAC")
+        .map(_.contains("true"))
+        .flatTap(ignore("set HAS_SCALAC=true to run scalac-dependent tests").unlessA(_))
+    )
+
+  test("parseCompilerPhases extracts phase hints and groups content"): _ =>
     val scalaSource = """case class Dog(n: String)"""
 
     for

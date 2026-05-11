@@ -11,4 +11,4 @@ msg="$1"
 repo_root="$(git rev-parse --show-toplevel)"
 cd "$repo_root"
 
-sbt fix fmt testQuick && git commit -a -m "$msg"
+HAS_SCALAC=true sbt fix fmt testQuick && git commit -a -m "$msg"
