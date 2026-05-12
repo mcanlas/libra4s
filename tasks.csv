@@ -12,12 +12,12 @@ pane-stage-icons,true,api-attempt-schema,Show compiler and disassembler stage re
 running-indicator,true,api-attempt-schema,Show a running indicator label to the left of the Run button and reuse the existing hourglass icon while a request is active
 last-request-wins,false,running-indicator,Ensure stale async responses cannot overwrite the newest request result.
 explicit-run-async,false,"running-indicator,last-request-wins",Keep async submission tied to the explicit Run action.
-persist-source-local-storage,false,explicit-run-async,Save source form text to local storage and load it on page initialization.
+persist-source-local-storage,false,explicit-run-async,Save the most recently successful source form text to local storage and restore it automatically on page initialization.
 hash-model,false,api-attempt-schema,Define deterministic request hashes that include source and relevant stage options.
 compiler-cache,false,"hash-model,compiler-attempt",Cache compiler results by compiler-specific hash.
 disassembler-cache,false,"hash-model,disassembler-attempt",Cache disassembler results by disassembler-specific hash.
 option-research,false,prd-draft,Research useful compiler and javap options before adding checkbox controls.
-compiler-options,false,"option-research,compiler-cache",Add compiler option checkboxes only after research identifies useful options.
-javap-options,false,"option-research,disassembler-cache",Add javap option checkboxes only after research identifies useful options.
+compiler-options,false,"option-research,compiler-cache,persist-source-local-storage",Add compiler option checkboxes only after research identifies useful options, and persist selections immediately via local storage.
+javap-options,false,"option-research,disassembler-cache,persist-source-local-storage",Add javap option checkboxes only after research identifies useful options, and persist selections immediately via local storage.
 javap-line-numbers,false,javap-options,Enable javap line number table output and parse line mappings into structured response data.
 compare-snippets,false,"compiler-cache,disassembler-cache,collapsible-phases,pane-stage-icons",Support comparing two Scala snippets and generated outputs side by side.

@@ -67,8 +67,9 @@
 
 ## persist-source-local-storage
 
-- [ ] Source textarea value is written to local storage when the user edits content
-- [ ] Saved local storage value is restored into the source textarea on page load
+- [ ] Source textarea value is written to local storage only after a successful compile
+- [ ] Saved local storage value is restored automatically into the source textarea on page load
+- [ ] Failed compile attempts do not overwrite the last successfully saved local storage value
 - [ ] Empty or missing local storage value does not overwrite the placeholder or default UI state
 
 ## hash-model
@@ -95,11 +96,13 @@
 
 - [ ] UI exposes researched `scalac` options and sends selections through request/hash
 - [ ] Backend honors selected `scalac` options during execution
+- [ ] Selected `scalac` options persist immediately on menu change via local storage and restore on page load
 
 ## javap-options
 
 - [ ] UI exposes researched `javap` options and sends selections through request/hash
 - [ ] Backend honors selected `javap` options during execution
+- [ ] Selected `javap` options persist immediately on menu change via local storage and restore on page load
 
 ## javap-line-numbers
 

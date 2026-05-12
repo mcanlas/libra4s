@@ -1,20 +1,24 @@
 package com.htmlism.libra4s.core
 
-import weaver.SimpleIOSuite
+import cats.effect.*
+import weaver.*
 
-object JavaDisassemblerSpec extends SimpleIOSuite:
+object JavaDisassemblerSpec extends IOSuite:
+  type Res = ScalaCompiler
 
-  test("disassembles a compiled class file"):
+  def sharedResource: Resource[IO, ScalaCompiler] =
+    ScalaCompilerTestSupport
+      .sharedResource(ignore("set HAS_SCALAC=true to run scalac-dependent tests"))
+
+  test("disassembles a compiled class file"): scalaCompiler =>
     val scalaSource = """case class Cat(name: String)"""
-
     for
       tempScalaPath <- FileSystemIO
         .createTempFile("cat", ".scala")
       _ <- FileSystemIO
         .writeString(tempScalaPath, scalaSource)
-
       // Compile the Scala file
-      compileResult <- ScalaCompiler
+      compileResult <- scalaCompiler
         .run(tempScalaPath.toString)
 
       // The compiler outputs to /tmp by default, so the class should be at /tmp/Cat.class
@@ -26,8 +30,10 @@ object JavaDisassemblerSpec extends SimpleIOSuite:
     yield (compileResult, disassemblyResult) match
       case (Left(err), _) =>
         failure(s"compilation failed with exit code ${err.exitCode}")
+
       case (_, Left(err)) =>
         failure(s"disassembly failed with exit code ${err.exitCode}")
+
       case (Right(_), Right(lines)) =>
         val output = lines.mkString("\n")
 

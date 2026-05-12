@@ -4,13 +4,13 @@ import java.nio.file.Path
 
 import cats.data.NonEmptyList
 import cats.effect.*
+import cats.effect.std.Env
+import cats.syntax.all.*
 
-object ScalaCompiler:
-  final case class Phase(hint: String, lines: List[String])
-
+final case class ScalaCompiler private (command: String):
   def compileCode(
       code: String
-  ): IO[(Path, Either[ProcessRunner.ProcessRunnerError, List[Phase]])] =
+  ): IO[(Path, Either[ProcessRunner.ProcessRunnerError, List[ScalaCompiler.Phase]])] =
     for
       tempDir <- FileSystemIO
         .createTempDirectory("libra4s-compile")
@@ -26,14 +26,51 @@ object ScalaCompiler:
 
   def runWithPhases(
       scalaFilePath: String
-  ): IO[Either[ProcessRunner.ProcessRunnerError, List[Phase]]] =
+  ): IO[Either[ProcessRunner.ProcessRunnerError, List[ScalaCompiler.Phase]]] =
     runWithPhases(scalaFilePath, "/tmp")
 
   def runWithPhases(
       scalaFilePath: String,
       outputDirectory: String
-  ): IO[Either[ProcessRunner.ProcessRunnerError, List[Phase]]] =
-    run(scalaFilePath, outputDirectory).map(_.map(parseCompilerPhases))
+  ): IO[Either[ProcessRunner.ProcessRunnerError, List[ScalaCompiler.Phase]]] =
+    run(scalaFilePath, outputDirectory).map(_.map(ScalaCompiler.parseCompilerPhases))
+
+  def run(
+      scalaFilePath: String
+  ): IO[Either[ProcessRunner.ProcessRunnerError, List[String]]] =
+    run(scalaFilePath, "/tmp")
+
+  def run(
+      scalaFilePath: String,
+      outputDirectory: String
+  ): IO[Either[ProcessRunner.ProcessRunnerError, List[String]]] =
+    ProcessRunner.run(
+      NonEmptyList.of(
+        command,
+        "-Vprint:all",
+        "-color:never",
+        "-d",
+        outputDirectory,
+        scalaFilePath
+      )
+    )
+
+object ScalaCompiler:
+  final case class Phase(hint: String, lines: List[String])
+
+  def build: IO[ScalaCompiler] =
+    for
+      maybeHasScalac <- Env
+        .make[IO]
+        .get("HAS_SCALAC")
+
+      res <- maybeHasScalac match
+        case Some("true") =>
+          ScalaCompiler("scalac").pure[IO]
+
+        case _ =>
+          IO.raiseError(RuntimeException("scalac is unavailable; set HAS_SCALAC=true"))
+    yield res
 
   private def parseCompilerPhases(
       lines: List[String]
@@ -53,26 +90,8 @@ object ScalaCompiler:
           case Some(lastPhase) =>
             val updatedPhase = lastPhase.copy(lines = lastPhase.lines :+ line)
             phases.dropRight(1) :+ updatedPhase
-          case None => phases
+
+          case None =>
+            phases
       else phases
     }
-
-  def run(
-      scalaFilePath: String
-  ): IO[Either[ProcessRunner.ProcessRunnerError, List[String]]] =
-    run(scalaFilePath, "/tmp")
-
-  def run(
-      scalaFilePath: String,
-      outputDirectory: String
-  ): IO[Either[ProcessRunner.ProcessRunnerError, List[String]]] =
-    ProcessRunner.run(
-      NonEmptyList.of(
-        "scalac",
-        "-Vprint:all",
-        "-color:never",
-        "-d",
-        outputDirectory,
-        scalaFilePath
-      )
-    )

@@ -14,7 +14,9 @@ import com.htmlism.libra4s.core.ScalaCompiler
 object DecompilerRoutes:
   private type CompileApiResponse = ApiResponse[String, CompileAndDisassembleResponse]
 
-  lazy val routes: HttpRoutes[IO] =
+  def routes(
+      scalaCompiler: ScalaCompiler
+  ): HttpRoutes[IO] =
     HttpRoutes.of[IO]:
       case GET -> Root =>
         Ok(DecompilerRoutesHtml.index)
@@ -25,7 +27,7 @@ object DecompilerRoutes:
           .leftSemiflatMap(_ => BadRequest(ApiResponse.Failure("Invalid JSON body"): CompileApiResponse))
           .semiflatMap: compileReq =>
             for
-              compileResult <- ScalaCompiler
+              compileResult <- scalaCompiler
                 .compileCode(compileReq.code)
 
               res <- compileResult match

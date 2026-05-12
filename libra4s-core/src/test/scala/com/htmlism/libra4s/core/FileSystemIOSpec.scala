@@ -1,20 +1,24 @@
 package com.htmlism.libra4s.core
 
-import weaver.SimpleIOSuite
+import cats.effect.*
+import weaver.*
 
-object FileSystemIOSpec extends SimpleIOSuite:
+object FileSystemIOSpec extends IOSuite:
+  type Res = ScalaCompiler
 
-  test("findClassFiles discovers class files recursively"):
+  def sharedResource: Resource[IO, ScalaCompiler] =
+    ScalaCompilerTestSupport
+      .sharedResource(ignore("set HAS_SCALAC=true to run scalac-dependent tests"))
+
+  test("findClassFiles discovers class files recursively"): scalaCompiler =>
     val scalaSource =
       """package foo.bar
         |
         |case class Dog(name: String)
         |""".stripMargin
-
     for
-      compileResult <- ScalaCompiler
+      compileResult <- scalaCompiler
         .compileCode(scalaSource)
-
       (tempDir, phasesResult) = compileResult
 
       classFiles <- FileSystemIO

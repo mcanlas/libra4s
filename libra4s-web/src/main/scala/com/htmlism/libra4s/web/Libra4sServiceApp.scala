@@ -7,11 +7,16 @@ import org.http4s.*
 import org.http4s.ember.server.EmberServerBuilder
 import org.http4s.server.middleware.Logger
 
+import com.htmlism.libra4s.core.ScalaCompiler
+
 object Libra4sServiceApp extends ResourceApp.Forever:
   def run(args: List[String]): Resource[IO, Unit] =
     for
       _ <- Resource
         .eval(IO.println("Starting libra4s service..."))
+
+      scalaCompiler <- Resource
+        .eval(ScalaCompiler.build)
 
       _ <- EmberServerBuilder
         .default[IO]
@@ -21,7 +26,7 @@ object Libra4sServiceApp extends ResourceApp.Forever:
           Logger.httpApp(logHeaders = true, logBody = false)(
             (
               StaticFileRoutes.routes <+>
-                DecompilerRoutes.routes
+                DecompilerRoutes.routes(scalaCompiler)
             ).orNotFound
           )
         )

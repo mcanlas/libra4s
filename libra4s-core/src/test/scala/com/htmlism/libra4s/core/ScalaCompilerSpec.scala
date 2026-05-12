@@ -1,23 +1,16 @@
 package com.htmlism.libra4s.core
 
 import cats.effect.*
-import cats.effect.std.Env
-import cats.syntax.all.*
 import weaver.*
 
 object ScalaCompilerSpec extends IOSuite:
-  type Res = Boolean
+  type Res = ScalaCompiler
 
-  def sharedResource: Resource[IO, Boolean] =
-    Resource.eval(
-      Env
-        .make[IO]
-        .get("HAS_SCALAC")
-        .map(_.contains("true"))
-        .flatTap(ignore("set HAS_SCALAC=true to run scalac-dependent tests").unlessA(_))
-    )
+  def sharedResource: Resource[IO, ScalaCompiler] =
+    ScalaCompilerTestSupport
+      .sharedResource(ignore("set HAS_SCALAC=true to run scalac-dependent tests"))
 
-  test("parseCompilerPhases extracts phase hints and groups content"): _ =>
+  test("parseCompilerPhases extracts phase hints and groups content"): scalaCompiler =>
     val scalaSource = """case class Dog(n: String)"""
 
     for
@@ -26,11 +19,12 @@ object ScalaCompilerSpec extends IOSuite:
       _ <- FileSystemIO
         .writeString(tempFilePath, scalaSource)
 
-      phasesResult <- ScalaCompiler
+      phasesResult <- scalaCompiler
         .runWithPhases(tempFilePath.toString)
     yield phasesResult match
       case Left(err) =>
         failure(s"compilation failed with exit code ${err.exitCode}")
+
       case Right(phases) =>
         val phaseHints = phases.map(_.hint)
 
