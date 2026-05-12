@@ -40,6 +40,6 @@ The service starts on [http://localhost:8080](http://localhost:8080)
 
 ## Colophon
 
-This project was named after the `Libra` spell in Final Fantasy, which reveals data about enemies.
-
-This project was agentically engineered with GitHub Copilot in IntelliJ and ChatGPT Codex.
+- Inspired by the [Godbolt Compiler Explorer](https://godbolt.org), of course
+- Named after the `Libra` spell in Final Fantasy, which reveals data about enemies
+- Agentically engineered with [GitHub Copilot](https://github.com/features/copilot) in IntelliJ and [ChatGPT Codex](https://chatgpt.com/codex)
