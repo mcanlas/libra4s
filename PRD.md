@@ -197,41 +197,45 @@ libra4s is a web-based Scala generated-code exploration tool. The current implem
 
    Product synthesis: the response model is the foundation for honest rendering of both success and failure. The collapsible phase UI should build on that contract instead of encoding assumptions from the current happy-path response.
 
-## Open Questions
+12. What should the attempt model call its main fields?
 
-1. What should the attempt model call its main fields?
+   Answer: use `ProcessError(exitCode: Int, lines: List[String])` for the process error channel and model stage attempts as `Either[ProcessError, A]`.
 
-   Recommended answer: use `ProcessError(exitCode: Int, lines: List[String])` for the process error channel and model stage attempts as `Either[ProcessError, A]`. Avoid making `status` a second source of truth in the core model; derive UI status from the `Either`, skipped stages, and running request state.
+   Product synthesis: avoid making `status` a second source of truth in the core model. Derive UI status from the `Either`, skipped stages, and running request state.
 
-2. What client-side state should persist across page reloads in the first local-storage pass?
+13. What client-side state should persist across page reloads in the first local-storage pass?
 
    Answer: persist the source textarea value in the first pass. When compiler and `javap` options are later implemented, persist those option selections too.
 
    Product synthesis: start with source-text persistence only. Do not persist transient run state or output panes. Treat option persistence as part of the option-feature work, and make those tasks depend on the local-storage foundation.
 
-3. Should the first local-storage restore happen automatically on page load, or should the UI offer an explicit restore/reset choice when saved text exists?
+14. Should the first local-storage restore happen automatically on page load, or should the UI offer an explicit restore/reset choice when saved text exists?
 
    Answer: restore automatically on page load.
 
    Product synthesis: keep the first persistence flow simple and predictable. If users later need reset behavior, add a separate clear action rather than complicating the initial restore experience.
 
-4. Should local storage support only one current working snippet, or should the product eventually support multiple saved drafts in the browser?
+15. Should local storage support only one current working snippet, or should the product eventually support multiple saved drafts in the browser?
 
    Answer: support only one current working snippet for now.
 
    Product synthesis: multiple drafts are out of scope for the first persistence feature. Treat browser persistence as a single working-snippet convenience, not a draft-management system.
 
-5. Should source persistence update on every edit, on explicit save, or only after a successful compile?
+16. Should source persistence update on every edit, on explicit save, or only after a successful compile?
 
    Answer: save only after a successful compile.
 
    Product synthesis: local storage should represent the most recently successful working snippet rather than every transient edit. Failed compile attempts should leave the last successful saved snippet untouched.
 
-6. When compiler or `javap` options are eventually added, should those option selections persist immediately when changed, or only after a successful compile?
+17. When compiler or `javap` options are eventually added, should those option selections persist immediately when changed, or only after a successful compile?
 
    Answer: persist option selections immediately when changed.
 
    Product synthesis: option selections behave like sticky UI preferences, not saved source content. They should restore independently of compile success so menu state stays predictable across reloads.
+
+## Open Questions
+
+No open product questions currently block the next implementation tasks. The current task graph is specific enough to continue with `next-task`.
 
 ## Interview Log
 
