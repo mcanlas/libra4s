@@ -15,7 +15,8 @@ object DecompilerRoutes:
   private type CompileApiResponse = ApiResponse[String, CompileAndDisassembleResponse]
 
   def routes(
-      scalaCompiler: ScalaCompiler
+      scalaCompiler: ScalaCompiler,
+      javaDisassembler: JavaDisassembler
   ): HttpRoutes[IO] =
     HttpRoutes.of[IO]:
       case GET -> Root =>
@@ -46,7 +47,7 @@ object DecompilerRoutes:
                       if classFiles.nonEmpty then
                         classFiles
                           .traverse: path =>
-                            JavaDisassembler
+                            javaDisassembler
                               .run(path.toString)
                               .map(result => path.getFileName.toString -> result)
                           .map(results => CompileAndDisassembleResponse.fromCompileSuccess(phases, results))

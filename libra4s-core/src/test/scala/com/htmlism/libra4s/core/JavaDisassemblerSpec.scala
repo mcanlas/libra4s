@@ -4,14 +4,22 @@ import cats.effect.*
 import weaver.*
 
 object JavaDisassemblerSpec extends IOSuite:
-  type Res = ScalaCompiler
+  type Res = (ScalaCompiler, JavaDisassembler)
 
-  def sharedResource: Resource[IO, ScalaCompiler] =
-    ScalaCompilerTestSupport
-      .sharedResource(ignore("install scalac and ensure it is on PATH to run scalac-dependent tests"))
+  def sharedResource: Resource[IO, (ScalaCompiler, JavaDisassembler)] =
+    for
+      scalaCompiler <- ScalaCompilerTestSupport
+        .sharedResource(ignore("install scalac and ensure it is on PATH to run scalac-dependent tests"))
 
-  test("disassembles a compiled class file"): scalaCompiler =>
+      javaDisassembler <- JavaDisassemblerTestSupport
+        .sharedResource(ignore("install javap and ensure it is on PATH to run javap-dependent tests"))
+    yield (scalaCompiler, javaDisassembler)
+
+  test("disassembles a compiled class file"): r =>
+    val (scalaCompiler, javaDisassembler) = r
+
     val scalaSource = """case class Cat(name: String)"""
+
     for
       tempScalaPath <- FileSystemIO
         .createTempFile("cat", ".scala")
@@ -25,7 +33,7 @@ object JavaDisassemblerSpec extends IOSuite:
       classFilePath = "/tmp/Cat.class"
 
       // Disassemble the class
-      disassemblyResult <- JavaDisassembler
+      disassemblyResult <- javaDisassembler
         .run(classFilePath)
     yield (compileResult, disassemblyResult) match
       case (Left(err), _) =>
