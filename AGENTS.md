@@ -13,7 +13,7 @@ Keep the two files in sync; when modifying one, be sure to modify the other in t
 
 ## Conventions
 
-- Ensure code changes are synchronized with documentation (diagrams, tables) and unit tests
+- Ensure code changes are synchronized with [documentation](README.md) and unit tests
 
 ## Scala
 
