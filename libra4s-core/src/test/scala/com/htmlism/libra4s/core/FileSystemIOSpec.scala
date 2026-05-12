@@ -8,7 +8,7 @@ object FileSystemIOSpec extends IOSuite:
 
   def sharedResource: Resource[IO, ScalaCompiler] =
     ScalaCompilerTestSupport
-      .sharedResource(ignore("set HAS_SCALAC=true to run scalac-dependent tests"))
+      .sharedResource(ignore("install scalac and ensure it is on PATH to run scalac-dependent tests"))
 
   test("findClassFiles discovers class files recursively"): scalaCompiler =>
     val scalaSource =

@@ -13,7 +13,7 @@ object ScalaCompilerPhasesTestApp extends IOApp:
 
           res <- scalaCompilerResult match
             case Left(_) =>
-              IO.println("scalac is unavailable; set HAS_SCALAC=true").as(ExitCode.Error)
+              IO.println("scalac is unavailable on PATH").as(ExitCode.Error)
 
             case Right(scalaCompiler) =>
               for

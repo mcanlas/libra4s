@@ -4,8 +4,6 @@ import java.nio.file.Path
 
 import cats.data.NonEmptyList
 import cats.effect.*
-import cats.effect.std.Env
-import cats.syntax.all.*
 
 final case class ScalaCompiler private (command: String):
   def compileCode(
@@ -59,18 +57,14 @@ object ScalaCompiler:
   final case class Phase(hint: String, lines: List[String])
 
   def build: IO[ScalaCompiler] =
-    for
-      maybeHasScalac <- Env
-        .make[IO]
-        .get("HAS_SCALAC")
+    ProcessRunner
+      .run(NonEmptyList.of("which", "scalac"))
+      .flatMap:
+        case Right(_) =>
+          IO.pure(ScalaCompiler("scalac"))
 
-      res <- maybeHasScalac match
-        case Some("true") =>
-          ScalaCompiler("scalac").pure[IO]
-
-        case _ =>
-          IO.raiseError(RuntimeException("scalac is unavailable; set HAS_SCALAC=true"))
-    yield res
+        case Left(_) =>
+          IO.raiseError(RuntimeException("scalac is unavailable on PATH"))
 
   private def parseCompilerPhases(
       lines: List[String]
