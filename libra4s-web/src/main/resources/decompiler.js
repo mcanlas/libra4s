@@ -142,6 +142,8 @@ document.addEventListener("DOMContentLoaded", () => {
     done: { icon: stageIcons.success.icon, label: "Done" }
   };
 
+  let latestRequestId = 0;
+
   const setRunningIndicator = state => {
     const indicator = runIndicatorStates[state] ?? runIndicatorStates.idle;
     const isIdle = state === "idle";
@@ -151,6 +153,8 @@ document.addEventListener("DOMContentLoaded", () => {
     runIndicatorText.textContent = indicator.label;
     runIndicator.setAttribute("aria-label", indicator.label);
   };
+
+  const isLatestRequest = requestId => requestId === latestRequestId;
 
   const processErrorLines = error => {
     if (Array.isArray(error?.errors)) {
@@ -263,6 +267,8 @@ document.addEventListener("DOMContentLoaded", () => {
   form.addEventListener("submit", async event => {
     event.preventDefault();
 
+    const requestId = ++latestRequestId;
+
     setRunningIndicator("running");
     setStageIcons("running", "running");
     setOutput("Running...");
@@ -277,6 +283,10 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       const payload = await response.json();
+
+      if (!isLatestRequest(requestId)) {
+        return;
+      }
 
       if (payload?.ok === true) {
         const data = payload.data ?? {};
@@ -296,10 +306,16 @@ document.addEventListener("DOMContentLoaded", () => {
         setStageIcons("failure", "failure");
       }
     } catch (error) {
+      if (!isLatestRequest(requestId)) {
+        return;
+      }
+
       setOutput(error instanceof Error ? error.message : "Request failed");
       setStageIcons("failure", "failure");
     } finally {
-      setRunningIndicator("done");
+      if (isLatestRequest(requestId)) {
+        setRunningIndicator("done");
+      }
     }
   });
 });

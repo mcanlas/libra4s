@@ -58,8 +58,8 @@
 
 ## last-request-wins
 
-- [ ] Stale responses are ignored when a newer request is in flight
-- [ ] Behavior is verified with an intentional out-of-order response scenario
+- [x] Stale responses are ignored when a newer request is in flight
+- [x] Behavior is verified with an intentional out-of-order response scenario
 
 ## explicit-run-async
 
