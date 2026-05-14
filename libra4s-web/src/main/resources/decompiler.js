@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("decompiler-form");
+  const submit = document.getElementById("submit");
   const source = document.getElementById("source");
   const compilerStageIcon = document.getElementById("compiler-stage-icon");
   const disassemblyStageIcon = document.getElementById("disassembly-stage-icon");
@@ -11,6 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (
     !(form instanceof HTMLFormElement) ||
+    !(submit instanceof HTMLButtonElement) ||
     !(source instanceof HTMLTextAreaElement) ||
     !(compilerStageIcon instanceof HTMLSpanElement) ||
     !(disassemblyStageIcon instanceof HTMLSpanElement) ||
@@ -265,6 +267,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }, true);
 
   form.addEventListener("submit", async event => {
+    if (event.submitter !== submit) {
+      return;
+    }
+
     event.preventDefault();
 
     const requestId = ++latestRequestId;

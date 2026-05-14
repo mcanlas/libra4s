@@ -11,7 +11,7 @@ collapsible-phases,true,api-attempt-schema,gpt-5.4,medium,Render compiler phases
 pane-stage-icons,true,api-attempt-schema,gpt-5.4-mini,medium,Show compiler and disassembler stage result icons in their respective pane headers.
 running-indicator,true,api-attempt-schema,gpt-5.4-mini,medium,Show a running indicator label to the left of the Run button and reuse the existing hourglass icon while a request is active
 last-request-wins,true,running-indicator,gpt-5.4,high,Ensure stale async responses cannot overwrite the newest request result.
-explicit-run-async,false,"running-indicator,last-request-wins",gpt-5.4-mini,low,Keep async submission tied to the explicit Run action.
+explicit-run-async,true,"running-indicator,last-request-wins",gpt-5.4-mini,low,Keep async submission tied to the explicit Run action.
 persist-source-local-storage,false,explicit-run-async,gpt-5.4,medium,Save the most recently successful source form text to local storage and restore it automatically on page initialization.
 hash-model,false,api-attempt-schema,gpt-5.4,high,Define deterministic request hashes that include source and relevant stage options.
 compiler-cache,false,"hash-model,compiler-attempt",gpt-5.4,high,Cache compiler results by compiler-specific hash.

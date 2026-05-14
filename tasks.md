@@ -63,7 +63,7 @@
 
 ## explicit-run-async
 
-- [ ] Async execution is triggered only by explicit Run submission
+- [x] Async execution is triggered only by explicit Run submission
 
 ## persist-source-local-storage
 
