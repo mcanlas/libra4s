@@ -72,6 +72,13 @@
 - [x] Failed compile attempts do not overwrite the last successfully saved local storage value
 - [x] Empty or missing local storage value does not overwrite the placeholder or default UI state
 
+## debounce-autosubmit
+
+- [ ] Editing the source triggers a compile request after a 300ms debounce
+- [ ] Restoring saved source on page load does not trigger autosubmit until the user makes a new edit
+- [ ] A manual `Run` action still submits immediately for reruns
+- [ ] When a newer autosubmit starts, stale in-flight responses do not overwrite the latest result
+
 ## hash-model
 
 - [ ] Hash input is canonical and deterministic for equivalent source/options

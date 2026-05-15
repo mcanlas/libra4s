@@ -3,6 +3,7 @@
 ## Status
 
 Drafted from repository inspection on 2026-05-02. This document should be updated as the product goals become clearer through interviews.
+This PRD uses roadmap phases (near term, medium term, long term) rather than formal version labels.
 
 ## Product Summary
 
@@ -68,10 +69,12 @@ libra4s is a web-based Scala generated-code exploration tool. The current implem
   - invalid/error: red X
 - Compiler and disassembler stage icons should appear in their respective pane headers.
 - The UI should have a separate running indicator outside the two destination output panes so existing results can remain visible while a new request runs.
-- Async submission should remain tied to the explicit `Run` action for now.
-- Edit/debounce autosubmission can be reconsidered after caching, last-request-wins behavior, and running indicators exist.
+- Async submission should support debounce-on-edit auto-submission, with an explicit `Run` action remaining available for manual reruns.
+- The debounce delay should be 300ms.
+- Autosubmit should not cancel in-flight work; stale responses should be ignored by request identity.
 - For repeated overlapping submissions, the UI should use a last-request-wins strategy.
 - Source text should persist across reloads via local storage.
+- Restoring source from local storage should not trigger autosubmit until the user edits the snippet.
 - Future compiler and `javap` option selections should also persist via local storage once those option controls exist.
 - The page should remain usable for long output.
 
@@ -118,10 +121,11 @@ libra4s is a web-based Scala generated-code exploration tool. The current implem
 - Use hashes as stable references for reruns, debugging, and possible future sharing.
 - Add async submission with visible status lights for valid, invalid, running, and completed states.
 - Add a running indicator outside the compiler and disassembler panes.
+- Add debounce-on-edit auto-submission, with last-request-wins behavior for overlapping requests.
 - Model stage-level success and failure so compiler-success/disassembler-failure can be represented without pretending the whole request succeeded.
 - Show separate compiler and disassembler status icons for partial-success states.
 - Place compiler and disassembler status icons in their respective pane headers.
-- Keep async submission behind the explicit `Run` action.
+- Keep the explicit `Run` action as a manual rerun control.
 - Define repeated-request behavior so the UI renders only the newest request result even if older requests complete later.
 
 ### Long Term
@@ -187,9 +191,9 @@ libra4s is a web-based Scala generated-code exploration tool. The current implem
 
 10. Should async submission happen only when the user presses `Run`, or eventually on edit/debounce?
 
-   Answer: keep explicit `Run` submission for now.
+   Answer: add debounce-on-edit auto-submission now; keep explicit `Run` as a manual rerun control.
 
-   Product synthesis: autosubmit should wait until caching, stale-response handling, and separate running indicators exist. The current product should preserve intentional execution through `Run`.
+   Product synthesis: autosubmit is part of the product now, and 300ms is a good default debounce. Restoring saved source should stay quiet until the user makes a new edit. In-flight work should be allowed to finish while stale results are ignored. The manual `Run` action remains useful for deliberate reruns and should not be removed.
 
 11. Should the PRD prioritize implementation order as "attempt/error model first, then collapsible phase UI," or should the first visible win be the collapsible phase UI?
 
