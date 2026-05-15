@@ -35,4 +35,5 @@ object Libra4sServiceApp extends ResourceApp.Forever:
           )
         )
         .build
+        .onFinalize(IO.println("Shutting down libra4s service..."))
     yield ()

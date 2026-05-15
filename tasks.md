@@ -74,10 +74,10 @@
 
 ## debounce-autosubmit
 
-- [ ] Editing the source triggers a compile request after a 300ms debounce
-- [ ] Restoring saved source on page load does not trigger autosubmit until the user makes a new edit
-- [ ] A manual `Run` action still submits immediately for reruns
-- [ ] When a newer autosubmit starts, stale in-flight responses do not overwrite the latest result
+- [x] Editing the source triggers a compile request after a 300ms debounce
+- [x] Restoring saved source on page load does not trigger autosubmit until the user makes a new edit
+- [x] A manual `Run` action still submits immediately for reruns
+- [x] When a newer auto-submit starts, stale in-flight responses do not overwrite the latest result
 
 ## hash-model
 

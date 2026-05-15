@@ -3,14 +3,14 @@
 Explore generated JVM output from Scala code in your browser
 
 `libra4s` is a small local web app for understanding what Scala code becomes after compilation.
-Paste Scala source, run it, then inspect:
+Paste Scala source, edit or run it, then inspect:
 
 - compiler phase output (`scalac -Vprint:all`)
 - disassembly output (`javap -c`)
 
 ## Features
 
-- Browser-based Scala snippet runner with explicit `Run` execution
+- Browser-based Scala snippet runner with 2000ms auto-submit on edit and manual `Run` reruns
 - Restores the last successfully compiled source snippet from browser local storage
 - Compiler phase output from `scalac -Vprint:all`, grouped for easier inspection
 - `javap -c` disassembly output in a dedicated side-by-side pane
@@ -34,7 +34,7 @@ The service starts on [http://localhost:8080](http://localhost:8080)
 
 1. Open `http://localhost:8080`
 2. Paste a small Scala snippet into the source box
-3. Click `Run`
+3. Edit to trigger auto-submit, or click `Run` to rerun immediately
 4. Read results in two panes:
    - left: compiler phases
    - right: `javap` disassembly

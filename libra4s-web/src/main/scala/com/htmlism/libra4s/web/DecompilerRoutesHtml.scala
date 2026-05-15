@@ -10,6 +10,7 @@ object DecompilerRoutesHtml:
         meta(charset := "UTF-8"),
         tag("title")("libra4s"),
         link(rel   := "stylesheet", href := "/decompiler.css"),
+        script(src := "/local-storage.js"),
         script(src := "/decompiler.js")
       ),
       body(

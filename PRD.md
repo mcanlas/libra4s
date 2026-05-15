@@ -193,7 +193,7 @@ libra4s is a web-based Scala generated-code exploration tool. The current implem
 
    Answer: add debounce-on-edit auto-submission now; keep explicit `Run` as a manual rerun control.
 
-   Product synthesis: autosubmit is part of the product now, and 300ms is a good default debounce. Restoring saved source should stay quiet until the user makes a new edit. In-flight work should be allowed to finish while stale results are ignored. The manual `Run` action remains useful for deliberate reruns and should not be removed.
+    Product synthesis: auto-submit is part of the product now, and 2000ms is a good default debounce. Restoring saved source should stay quiet until the user makes a new edit. In-flight work should be allowed to finish while stale results are ignored. The manual `Run` action remains useful for deliberate reruns and should not be removed.
 
 11. Should the PRD prioritize implementation order as "attempt/error model first, then collapsible phase UI," or should the first visible win be the collapsible phase UI?
 

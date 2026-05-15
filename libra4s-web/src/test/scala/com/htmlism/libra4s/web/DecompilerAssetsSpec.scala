@@ -6,33 +6,68 @@ import scala.util.Using
 import weaver.FunSuite
 
 object DecompilerAssetsSpec extends FunSuite:
-  private val jsResource =
+  private val decompilerJsResource =
     "decompiler.js"
 
-  private lazy val maybeJavascript =
-    readJavascript
+  private val localStorageJsResource =
+    "local-storage.js"
 
-  private def readJavascript =
-    Option(getClass.getClassLoader.getResourceAsStream(jsResource))
+  private lazy val maybeDecompilerJavascript =
+    readResource(decompilerJsResource)
+
+  private lazy val maybeLocalStorageJavascript =
+    readResource(localStorageJsResource)
+
+  private def readResource(resource: String) =
+    Option(getClass.getClassLoader.getResourceAsStream(resource))
       .map(stream => Using.resource(Source.fromInputStream(stream))(_.mkString))
 
   private def withDecompilerJs[A](f: String => A) =
-    maybeJavascript match
+    maybeDecompilerJavascript match
       case Some(javascript) =>
         f(javascript)
 
       case None =>
-        failure(s"missing test resource: $jsResource")
+        failure(s"missing test resource: $decompilerJsResource")
 
-  test("restores saved source on page load only when a non-empty value exists"):
+  private def withLocalStorageJs[A](f: String => A) =
+    maybeLocalStorageJavascript match
+      case Some(javascript) =>
+        f(javascript)
+
+      case None =>
+        failure(s"missing test resource: $localStorageJsResource")
+
+  test("loads encapsulated local storage API and restores saved source on page load"):
     withDecompilerJs: js =>
-      expect(js.contains("""const sourceStorageKey = "libra4s.source";""")) &&
-        expect(js.contains("const savedSource = window.localStorage.getItem(sourceStorageKey);")) &&
-        expect(js.contains("savedSource.length > 0")) &&
+      expect(js.contains("window.libra4sLocalStorage")) &&
+        expect(js.contains("const localStorageApi =")) &&
+        expect(js.contains("const savedSource = localStorageApi.readSavedSource();")) &&
         expect(js.contains("source.value = savedSource;"))
 
-  test("persists source only after successful compiler attempts"):
+  test("persists source only after successful compiler attempts through local storage API"):
     withDecompilerJs: js =>
-      expect(js.contains("""const isSuccessfulCompilerAttempt = attempt => attempt?.state === "success";""")) &&
+      expect(js.contains("const isSuccessfulCompilerAttempt = attempt => attempt?.state === \"success\";")) &&
         expect(js.contains("if (isSuccessfulCompilerAttempt(data.compiler)) {")) &&
-        expect(js.contains("saveSource(source.value);"))
+        expect(js.contains("localStorageApi.saveSource(source.value);"))
+
+  test("auto-submits on edit after debounce without submitting restored source on load"):
+    withDecompilerJs: js =>
+      expect(js.contains("const autoSubmitDelayMs = 2000;")) &&
+        expect(js.contains("""source.addEventListener("input", () => {""")) &&
+        expect(js.contains("pendingAutoSubmit = window.setTimeout(runCompile, autoSubmitDelayMs);")) &&
+        expect(js.contains("if (savedSource !== null) {"))
+
+  test("manual run still submits immediately and clears pending auto-submit"):
+    withDecompilerJs: js =>
+      expect(js.contains("const clearPendingAutoSubmit = () => {")) &&
+        expect(js.contains("clearPendingAutoSubmit();")) &&
+        expect(js.contains("await runCompile();"))
+
+  test("local storage helper reads non-empty source and handles write failures"):
+    withLocalStorageJs: js =>
+      expect(js.contains("const sourceStorageKey = \"libra4s.source\";")) &&
+        expect(js.contains("window.localStorage.getItem(key)")) &&
+        expect(js.contains("value.length > 0 ? value : null")) &&
+        expect(js.contains("window.localStorage.setItem(key, value)")) &&
+        expect(js.contains("window.libra4sLocalStorage = {"))

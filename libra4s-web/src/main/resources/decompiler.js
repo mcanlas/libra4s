@@ -9,44 +9,18 @@ document.addEventListener("DOMContentLoaded", () => {
   const runIndicator = document.getElementById("run-indicator");
   const runIndicatorIcon = document.getElementById("run-indicator-icon");
   const runIndicatorText = document.getElementById("run-indicator-text");
-  const sourceStorageKey = "libra4s.source";
-
-  if (
-    !(form instanceof HTMLFormElement) ||
-    !(submit instanceof HTMLButtonElement) ||
-    !(source instanceof HTMLTextAreaElement) ||
-    !(compilerStageIcon instanceof HTMLSpanElement) ||
-    !(disassemblyStageIcon instanceof HTMLSpanElement) ||
-    !(outputCompiler instanceof HTMLDivElement) ||
-    !(outputDisassembly instanceof HTMLDivElement) ||
-    !(runIndicator instanceof HTMLSpanElement) ||
-    !(runIndicatorIcon instanceof HTMLSpanElement) ||
-    !(runIndicatorText instanceof HTMLSpanElement)
-  ) {
-    return;
-  }
 
   const formatLines = lines => Array.isArray(lines) ? lines.join("\n") : "";
 
-  const readSavedSource = () => {
-    try {
-      const savedSource = window.localStorage.getItem(sourceStorageKey);
-
-      return typeof savedSource === "string" && savedSource.length > 0
-        ? savedSource
-        : null;
-    } catch (_error) {
-      return null;
-    }
-  };
-
-  const saveSource = value => {
-    try {
-      window.localStorage.setItem(sourceStorageKey, value);
-    } catch (_error) {
-      // Ignore storage failures so they do not break local exploration.
-    }
-  };
+  const localStorageApi =
+    typeof window.libra4sLocalStorage === "object" && window.libra4sLocalStorage !== null
+      ? window.libra4sLocalStorage
+      : {
+          readSavedSource: () => null,
+          saveSource: () => {
+            // no-op fallback when local-storage.js is unavailable
+          }
+        };
 
   const escapeHtml = text => String(text)
     .replaceAll("&", "&amp;")
@@ -165,7 +139,10 @@ document.addEventListener("DOMContentLoaded", () => {
     done: { icon: stageIcons.success.icon, label: "Done" }
   };
 
+  const autoSubmitDelayMs = 2000;
+
   let latestRequestId = 0;
+  let pendingAutoSubmit = null;
 
   const setRunningIndicator = state => {
     const indicator = runIndicatorStates[state] ?? runIndicatorStates.idle;
@@ -277,30 +254,15 @@ document.addEventListener("DOMContentLoaded", () => {
     outputDisassembly.innerHTML = escaped;
   };
 
-  outputCompiler.addEventListener("toggle", event => {
-    const target = event.target;
-
-    if (target instanceof HTMLDetailsElement && target.classList.contains("compiler-phase")) {
-      const key = target.dataset.phaseKey;
-
-      if (typeof key === "string") {
-        expandedCompilerPhaseKeys.set(key, target.open);
-      }
+  const clearPendingAutoSubmit = () => {
+    if (pendingAutoSubmit !== null) {
+      window.clearTimeout(pendingAutoSubmit);
+      pendingAutoSubmit = null;
     }
-  }, true);
+  };
 
-  const savedSource = readSavedSource();
-
-  if (savedSource !== null) {
-    source.value = savedSource;
-  }
-
-  form.addEventListener("submit", async event => {
-    if (event.submitter !== submit) {
-      return;
-    }
-
-    event.preventDefault();
+  const runCompile = async () => {
+    clearPendingAutoSubmit();
 
     const requestId = ++latestRequestId;
 
@@ -332,7 +294,7 @@ document.addEventListener("DOMContentLoaded", () => {
         outputDisassembly.classList.remove("has-structured-output");
 
         if (isSuccessfulCompilerAttempt(data.compiler)) {
-          saveSource(source.value);
+          localStorageApi.saveSource(source.value);
         }
 
         setStageIcons(
@@ -357,5 +319,38 @@ document.addEventListener("DOMContentLoaded", () => {
         setRunningIndicator("done");
       }
     }
+  };
+
+  outputCompiler.addEventListener("toggle", event => {
+    const target = event.target;
+
+    if (target instanceof HTMLDetailsElement && target.classList.contains("compiler-phase")) {
+      const key = target.dataset.phaseKey;
+
+      if (typeof key === "string") {
+        expandedCompilerPhaseKeys.set(key, target.open);
+      }
+    }
+  }, true);
+
+  const savedSource = localStorageApi.readSavedSource();
+
+  if (savedSource !== null) {
+    source.value = savedSource;
+  }
+
+  source.addEventListener("input", () => {
+    clearPendingAutoSubmit();
+    pendingAutoSubmit = window.setTimeout(runCompile, autoSubmitDelayMs);
+  });
+
+  form.addEventListener("submit", async event => {
+    if (event.submitter !== submit) {
+      return;
+    }
+
+    event.preventDefault();
+
+    await runCompile();
   });
 });
