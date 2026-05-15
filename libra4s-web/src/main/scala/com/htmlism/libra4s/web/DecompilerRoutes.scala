@@ -27,11 +27,10 @@ object DecompilerRoutes:
           .attemptAs[CompileRequest]
           .leftSemiflatMap(_ => BadRequest(ApiResponse.Failure("Invalid JSON body"): CompileApiResponse))
           .semiflatMap: compileReq =>
-            for
-              compileResult <- scalaCompiler
-                .compileCode(compileReq.code)
-
-              res <- compileResult match
+            scalaCompiler
+              .compileCode(compileReq.code)
+          .semiflatMap: compileResult =>
+            for res <- compileResult match
                 case (_, Left(err)) =>
                   Ok(
                     ApiResponse
