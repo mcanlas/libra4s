@@ -67,10 +67,10 @@
 
 ## persist-source-local-storage
 
-- [ ] Source textarea value is written to local storage only after a successful compile
-- [ ] Saved local storage value is restored automatically into the source textarea on page load
-- [ ] Failed compile attempts do not overwrite the last successfully saved local storage value
-- [ ] Empty or missing local storage value does not overwrite the placeholder or default UI state
+- [x] Source textarea value is written to local storage only after a successful compile
+- [x] Saved local storage value is restored automatically into the source textarea on page load
+- [x] Failed compile attempts do not overwrite the last successfully saved local storage value
+- [x] Empty or missing local storage value does not overwrite the placeholder or default UI state
 
 ## hash-model
 

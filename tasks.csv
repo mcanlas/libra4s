@@ -12,7 +12,7 @@ pane-stage-icons,true,api-attempt-schema,gpt-5.4-mini,medium,Show compiler and d
 running-indicator,true,api-attempt-schema,gpt-5.4-mini,medium,Show a running indicator label to the left of the Run button and reuse the existing hourglass icon while a request is active
 last-request-wins,true,running-indicator,gpt-5.4,high,Ensure stale async responses cannot overwrite the newest request result.
 explicit-run-async,true,"running-indicator,last-request-wins",gpt-5.4-mini,low,Keep async submission tied to the explicit Run action.
-persist-source-local-storage,false,explicit-run-async,gpt-5.4,medium,Save the most recently successful source form text to local storage and restore it automatically on page initialization.
+persist-source-local-storage,true,explicit-run-async,gpt-5.4,medium,Save the most recently successful source form text to local storage and restore it automatically on page initialization.
 hash-model,false,api-attempt-schema,gpt-5.4,high,Define deterministic request hashes that include source and relevant stage options.
 compiler-cache,false,"hash-model,compiler-attempt",gpt-5.4,high,Cache compiler results by compiler-specific hash.
 disassembler-cache,false,"hash-model,disassembler-attempt",gpt-5.4,high,Cache disassembler results by disassembler-specific hash.

@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const runIndicator = document.getElementById("run-indicator");
   const runIndicatorIcon = document.getElementById("run-indicator-icon");
   const runIndicatorText = document.getElementById("run-indicator-text");
+  const sourceStorageKey = "libra4s.source";
 
   if (
     !(form instanceof HTMLFormElement) ||
@@ -26,6 +27,26 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   const formatLines = lines => Array.isArray(lines) ? lines.join("\n") : "";
+
+  const readSavedSource = () => {
+    try {
+      const savedSource = window.localStorage.getItem(sourceStorageKey);
+
+      return typeof savedSource === "string" && savedSource.length > 0
+        ? savedSource
+        : null;
+    } catch (_error) {
+      return null;
+    }
+  };
+
+  const saveSource = value => {
+    try {
+      window.localStorage.setItem(sourceStorageKey, value);
+    } catch (_error) {
+      // Ignore storage failures so they do not break local exploration.
+    }
+  };
 
   const escapeHtml = text => String(text)
     .replaceAll("&", "&amp;")
@@ -158,6 +179,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const isLatestRequest = requestId => requestId === latestRequestId;
 
+  const isSuccessfulCompilerAttempt = attempt => attempt?.state === "success";
+
   const processErrorLines = error => {
     if (Array.isArray(error?.errors)) {
       return error.errors.flatMap(item => Array.isArray(item?.lines) ? item.lines : []);
@@ -266,6 +289,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }, true);
 
+  const savedSource = readSavedSource();
+
+  if (savedSource !== null) {
+    source.value = savedSource;
+  }
+
   form.addEventListener("submit", async event => {
     if (event.submitter !== submit) {
       return;
@@ -301,6 +330,11 @@ document.addEventListener("DOMContentLoaded", () => {
         outputCompiler.classList.toggle("has-structured-output", hasCompilerPhases(data.compiler));
         outputDisassembly.innerHTML = formatAttemptHtml(data.javap, javap => formatJavapOutputsHtml(javap.outputs));
         outputDisassembly.classList.remove("has-structured-output");
+
+        if (isSuccessfulCompilerAttempt(data.compiler)) {
+          saveSource(source.value);
+        }
+
         setStageIcons(
           stageStatus(data.compiler, false),
           stageStatus(data.javap, isSkippedJavapAttempt(data.javap))

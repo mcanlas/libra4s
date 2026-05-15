@@ -11,6 +11,7 @@ Paste Scala source, run it, then inspect:
 ## Features
 
 - Browser-based Scala snippet runner with explicit `Run` execution
+- Restores the last successfully compiled source snippet from browser local storage
 - Compiler phase output from `scalac -Vprint:all`, grouped for easier inspection
 - `javap -c` disassembly output in a dedicated side-by-side pane
 
