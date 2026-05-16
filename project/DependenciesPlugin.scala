@@ -62,17 +62,13 @@ object DependenciesPlugin extends AutoPlugin {
           libraryDependencies += "is.cir" %% "ciris" % "3.6.0"
         )
 
-      def withTesting: Project = {
-        val weaverVersion =
-          "0.12.0"
-
+      def withTesting: Project =
         p.settings(
           libraryDependencies ++= Seq(
-            "org.typelevel" %% "weaver-cats"       % weaverVersion % Test,
-            "org.typelevel" %% "weaver-scalacheck" % weaverVersion % Test
+            "org.typelevel" %% "weaver-cats"       % Versions.weaver % Test,
+            "org.typelevel" %% "weaver-scalacheck" % Versions.weaver % Test
           )
         )
-      }
     }
   }
 }

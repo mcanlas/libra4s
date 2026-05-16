@@ -1,3 +1,4 @@
 object Versions {
-  val catsEffect: String = "3.7.0"
+  val catsEffect = "3.7.0"
+  val weaver     = "0.12.0"
 }
