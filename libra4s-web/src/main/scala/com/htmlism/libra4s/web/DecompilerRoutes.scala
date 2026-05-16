@@ -36,10 +36,10 @@ object DecompilerRoutes:
                 ApiResponse
                   .Success(CompileAndDisassembleResponse.fromCompileFailure(err)): CompileApiResponse
               )
-          .semiflatMap: (tempDir, phases) =>
+          .semiflatMap: (compilerOutputDir, phases) =>
             for
               classFiles <- FileSystemIO
-                .findClassFiles(tempDir)
+                .findClassFiles(compilerOutputDir)
 
               response <-
                 if classFiles.nonEmpty then
