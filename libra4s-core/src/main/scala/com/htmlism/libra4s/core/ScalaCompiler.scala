@@ -4,11 +4,12 @@ import java.nio.file.Path
 
 import cats.data.NonEmptyList
 import cats.effect.*
+import cats.syntax.all.*
 
 final case class ScalaCompiler private (command: String):
   def compileCode(
       code: String
-  ): IO[(Path, Either[ProcessRunner.ProcessRunnerError, List[ScalaCompiler.Phase]])] =
+  ): IO[Either[ProcessRunner.ProcessRunnerError, (Path, List[ScalaCompiler.Phase])]] =
     for
       tempDir <- FileSystemIO
         .createTempDirectory("libra4s-compile")
@@ -20,7 +21,8 @@ final case class ScalaCompiler private (command: String):
         .writeString(scalaFilePath, code)
 
       phasesResult <- runWithPhases(scalaFilePath.toString, tempDir.toString)
-    yield (tempDir, phasesResult)
+    yield phasesResult
+      .tupleLeft(tempDir)
 
   def runWithPhases(
       scalaFilePath: String

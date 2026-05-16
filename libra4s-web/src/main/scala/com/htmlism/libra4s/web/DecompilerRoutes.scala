@@ -31,13 +31,13 @@ object DecompilerRoutes:
               .compileCode(compileReq.code)
           .semiflatMap: compileResult =>
             for res <- compileResult match
-                case (_, Left(err)) =>
+                case Left(err) =>
                   Ok(
                     ApiResponse
                       .Success(CompileAndDisassembleResponse.fromCompileFailure(err)): CompileApiResponse
                   )
 
-                case (tempDir, Right(phases)) =>
+                case Right((tempDir, phases)) =>
                   for
                     classFiles <- FileSystemIO
                       .findClassFiles(tempDir)

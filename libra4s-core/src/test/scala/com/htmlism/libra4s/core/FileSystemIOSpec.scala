@@ -19,19 +19,20 @@ object FileSystemIOSpec extends IOSuite:
     for
       compileResult <- scalaCompiler
         .compileCode(scalaSource)
-      (tempDir, phasesResult) = compileResult
 
-      classFiles <- FileSystemIO
-        .findClassFiles(tempDir)
-    yield phasesResult match
-      case Left(err) =>
-        failure(s"compilation failed with exit code ${err.exitCode}")
+      result <- compileResult match
+        case Left(err) =>
+          IO.pure(failure(s"compilation failed with exit code ${err.exitCode}"))
 
-      case Right(_) =>
-        val hasNestedPackageClass =
-          classFiles.exists: path =>
-            val p = path.toString
+        case Right((tempDir, _)) =>
+          FileSystemIO
+            .findClassFiles(tempDir)
+            .map: classFiles =>
+              val hasNestedPackageClass =
+                classFiles.exists: path =>
+                  val p = path.toString
 
-            p.contains("foo/bar") || p.contains("foo\\bar")
+                  p.contains("foo/bar") || p.contains("foo\\bar")
 
-        expect(hasNestedPackageClass)
+              expect(hasNestedPackageClass)
+    yield result
