@@ -6,9 +6,6 @@ object DependenciesPlugin extends AutoPlugin {
 
   object autoImport {
     implicit class DependencyOps(p: Project) {
-      val http4sVersion =
-        "0.23.33"
-
       val circeVersion =
         "0.14.15"
 
@@ -33,8 +30,8 @@ object DependenciesPlugin extends AutoPlugin {
         p
           .settings(
             libraryDependencies ++= Seq(
-              "org.http4s" %% "http4s-ember-client" % http4sVersion,
-              "org.http4s" %% "http4s-circe"        % http4sVersion
+              "org.http4s" %% "http4s-ember-client" % Versions.http4s,
+              "org.http4s" %% "http4s-circe"        % Versions.http4s
             )
           )
 
@@ -42,10 +39,10 @@ object DependenciesPlugin extends AutoPlugin {
         p
           .settings(
             libraryDependencies ++= Seq(
-              "org.http4s" %% "http4s-ember-server" % http4sVersion,
-              "org.http4s" %% "http4s-dsl"          % http4sVersion,
-              "org.http4s" %% "http4s-scalatags"    % "0.25.2",
-              "org.http4s" %% "http4s-circe"        % http4sVersion
+              "org.http4s" %% "http4s-ember-server" % Versions.http4s,
+              "org.http4s" %% "http4s-dsl"          % Versions.http4s,
+              "org.http4s" %% "http4s-scalatags"    % Versions.http4sScalatags,
+              "org.http4s" %% "http4s-circe"        % Versions.http4s
             )
           )
 
