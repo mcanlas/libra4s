@@ -1,5 +1,6 @@
 package com.htmlism.libra4s.web
 
+import cats.data.EitherT
 import cats.effect.IO
 import cats.syntax.all.*
 import org.http4s.circe.CirceEntityCodec.*
@@ -26,38 +27,35 @@ object DecompilerRoutes:
         req
           .attemptAs[CompileRequest]
           .leftSemiflatMap(_ => BadRequest(ApiResponse.Failure("Invalid JSON body"): CompileApiResponse))
-          .semiflatMap: compileReq =>
-            scalaCompiler
-              .compileCode(compileReq.code)
-          .semiflatMap: compileResult =>
-            for res <- compileResult match
-                case Left(err) =>
-                  Ok(
-                    ApiResponse
-                      .Success(CompileAndDisassembleResponse.fromCompileFailure(err)): CompileApiResponse
-                  )
+          .flatMap: compileReq =>
+            EitherT:
+              scalaCompiler
+                .compileCode(compileReq.code)
+            .leftSemiflatMap: err =>
+              Ok(
+                ApiResponse
+                  .Success(CompileAndDisassembleResponse.fromCompileFailure(err)): CompileApiResponse
+              )
+          .semiflatMap: (tempDir, phases) =>
+            for
+              classFiles <- FileSystemIO
+                .findClassFiles(tempDir)
 
-                case Right((tempDir, phases)) =>
-                  for
-                    classFiles <- FileSystemIO
-                      .findClassFiles(tempDir)
+              response <-
+                if classFiles.nonEmpty then
+                  classFiles
+                    .traverse: path =>
+                      javaDisassembler
+                        .run(path.toString)
+                        .map(result => path.getFileName.toString -> result)
+                    .map(results => CompileAndDisassembleResponse.fromCompileSuccess(phases, results))
+                else
+                  IO.pure:
+                    CompileAndDisassembleResponse.fromCompileSuccessWithoutClass(phases)
 
-                    response <-
-                      if classFiles.nonEmpty then
-                        classFiles
-                          .traverse: path =>
-                            javaDisassembler
-                              .run(path.toString)
-                              .map(result => path.getFileName.toString -> result)
-                          .map(results => CompileAndDisassembleResponse.fromCompileSuccess(phases, results))
-                      else
-                        IO.pure:
-                          CompileAndDisassembleResponse.fromCompileSuccessWithoutClass(phases)
-
-                    res <- Ok(
-                      ApiResponse
-                        .Success(response): CompileApiResponse
-                    )
-                  yield res
+              res <- Ok(
+                ApiResponse
+                  .Success(response): CompileApiResponse
+              )
             yield res
           .merge
