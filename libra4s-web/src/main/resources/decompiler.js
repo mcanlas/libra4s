@@ -192,22 +192,29 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   const formatJavapOutputsHtml = outputs => {
-    if (!Array.isArray(outputs)) {
+    if (!Array.isArray(outputs) || outputs.length === 0) {
       return "";
     }
 
-    return outputs
-      .map(output => {
+    return `<div class="javap-outputs">${outputs
+      .map((output, index) => {
         const classFile = typeof output?.classFile === "string" ? output.classFile : "(unknown class)";
         const header = escapeHtml(classFile);
         const lines = Array.isArray(output?.lines)
           ? output.lines.map(formatLineWithCommentHighlight).join("\n")
           : "";
+        const open = index === 0;
 
-        return lines ? `${header}\n${lines}` : header;
+        return `<details class="javap-class"${open ? " open" : ""}>
+  <summary class="javap-class-summary">${header}</summary>
+  <pre class="javap-class-lines">${lines}</pre>
+</details>`;
       })
-      .join("\n\n");
+      .join("")}</div>`;
   };
+
+  const hasJavapOutputs = javap =>
+    Array.isArray(javap?.value?.outputs) && javap.value.outputs.length > 0;
 
   const formatFailureHtml = error => {
     if (Array.isArray(error?.errors)) {
@@ -291,7 +298,7 @@ document.addEventListener("DOMContentLoaded", () => {
         outputCompiler.innerHTML = formatAttemptHtml(data.compiler, formatCompilerSuccessHtml);
         outputCompiler.classList.toggle("has-structured-output", hasCompilerPhases(data.compiler));
         outputDisassembly.innerHTML = formatAttemptHtml(data.javap, javap => formatJavapOutputsHtml(javap.outputs));
-        outputDisassembly.classList.remove("has-structured-output");
+        outputDisassembly.classList.toggle("has-structured-output", hasJavapOutputs(data.javap));
 
         if (isSuccessfulCompilerAttempt(data.compiler)) {
           localStorageApi.saveSource(source.value);

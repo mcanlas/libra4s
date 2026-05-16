@@ -98,17 +98,20 @@ body {
   white-space: normal;
 }
 
-.compiler-phases {
+.compiler-phases,
+.javap-outputs {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.compiler-phase {
+.compiler-phase,
+.javap-class {
   border: 1px solid #ddd;
 }
 
-.compiler-phase-summary {
+.compiler-phase-summary,
+.javap-class-summary {
   cursor: pointer;
   padding: 8px 10px;
   color: #555;
@@ -117,7 +120,8 @@ body {
   white-space: normal;
 }
 
-.compiler-phase-lines {
+.compiler-phase-lines,
+.javap-class-lines {
   margin: 0;
   padding: 10px;
   border-top: 1px solid #ddd;

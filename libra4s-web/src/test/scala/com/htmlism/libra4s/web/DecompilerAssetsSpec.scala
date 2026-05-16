@@ -64,6 +64,16 @@ object DecompilerAssetsSpec extends FunSuite:
         expect(js.contains("clearPendingAutoSubmit();")) &&
         expect(js.contains("await runCompile();"))
 
+  test("renders disassembly output grouped by class file headings"):
+    withDecompilerJs: js =>
+      expect(js.contains("const formatJavapOutputsHtml = outputs => {")) &&
+        expect(js.contains("""<details class="javap-class"""")) &&
+        expect(js.contains("""<summary class="javap-class-summary">""")) &&
+        expect(js.contains("const hasJavapOutputs = javap =>")) &&
+        expect(
+          js.contains("""outputDisassembly.classList.toggle("has-structured-output", hasJavapOutputs(data.javap));""")
+        )
+
   test("local storage helper reads non-empty source and handles write failures"):
     withLocalStorageJs: js =>
       expect(js.contains("const sourceStorageKey = \"libra4s.source\";")) &&
