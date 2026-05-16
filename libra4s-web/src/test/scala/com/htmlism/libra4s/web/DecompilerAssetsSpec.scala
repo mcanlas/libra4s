@@ -74,6 +74,12 @@ object DecompilerAssetsSpec extends FunSuite:
           js.contains("""outputDisassembly.classList.toggle("has-structured-output", hasJavapOutputs(data.javap));""")
         )
 
+  test("adds ghost marker to compiler phase heading when phase body is blank"):
+    withDecompilerJs: js =>
+      expect(js.contains("const isBlankBody = lines.trim().length === 0;")) &&
+        expect(js.contains("""const summarySuffix = isBlankBody ? " 👻" : "";""")) &&
+        expect(js.contains("""<summary class="compiler-phase-summary">${escapeHtml(hint)}${summarySuffix}</summary>"""))
+
   test("local storage helper reads non-empty source and handles write failures"):
     withLocalStorageJs: js =>
       expect(js.contains("const sourceStorageKey = \"libra4s.source\";")) &&

@@ -79,6 +79,38 @@
 - [x] A manual `Run` action still submits immediately for reruns
 - [x] When a newer auto-submit starts, stale in-flight responses do not overwrite the latest result
 
+## member-group-schema-server
+
+- [ ] API response replaces prior raw stage `lines` payloads with grouped-line schema fields for compiler and disassembly stages
+- [ ] Compiler and disassembly grouped schemas use separate role enums (compiler: `plain|def|val|var`; decompiler: `plain|field|method`)
+- [ ] Group model is line-list compatible: each group contains ordered lines, and stage output remains reconstructible without loss
+
+## compiler-group-parser-server
+
+- [ ] Server groups compiler output into contiguous same-role runs using compiler-role enum
+- [ ] Role detection covers declaration/signature grouping for `def`, `val`, and `var`; unmatched and empty lines are preserved as `plain`
+- [ ] Output ordering matches exact compiler emission order with no cross-document regrouping
+
+## disassembly-group-parser-server
+
+- [ ] Server groups per-class disassembly output into contiguous same-role runs using decompiler-role enum
+- [ ] Role detection covers `field` and `method`; unmatched and empty lines are preserved as `plain`
+- [ ] Init-specific highlighting for `<init>` / `<clinit>` is not added in v1 without explicit user confirmation
+
+## ui-structured-group-rendering
+
+- [ ] UI renders compiler and disassembly panes from structured grouped-line fields only (no client-side parsing of raw output text)
+- [ ] Compiler pane keeps existing collapsible-phase behavior while rendering role groups in source order
+- [ ] CSS-only role palettes are applied with top-down round-robin assignment per render
+- [ ] Fallback `plain` groups render with no highlight and preserve original line text/spacing
+
+## member-highlighting-tests-docs
+
+- [ ] Tests cover server grouped-schema serialization for both stage hierarchies and role enums
+- [ ] Tests verify fallback behavior for unmatched and empty lines, including preserved ordering and contiguous grouping
+- [ ] Asset/UI tests verify rendering consumes structured groups without client-side text parsing
+- [ ] Documentation reflects server-side parsing, direct schema replacement, and declaration/signature-only highlighting scope
+
 ## hash-model
 
 - [ ] Hash input is canonical and deterministic for equivalent source/options

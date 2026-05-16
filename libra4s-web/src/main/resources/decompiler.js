@@ -82,12 +82,14 @@ document.addEventListener("DOMContentLoaded", () => {
           ? phase.hint
           : `Phase ${index + 1}`;
         const lines = Array.isArray(phase?.lines) ? phase.lines.join("\n") : "";
+        const isBlankBody = lines.trim().length === 0;
+        const summarySuffix = isBlankBody ? " 👻" : "";
         const open = expandedCompilerPhaseKeys.has(key)
           ? expandedCompilerPhaseKeys.get(key) === true
           : index === 0;
 
         return `<details class="compiler-phase" data-phase-key="${escapeHtml(key)}"${open ? " open" : ""}>
-  <summary class="compiler-phase-summary">${escapeHtml(hint)}</summary>
+  <summary class="compiler-phase-summary">${escapeHtml(hint)}${summarySuffix}</summary>
   <pre class="compiler-phase-lines">${escapeHtml(lines)}</pre>
 </details>`;
       })

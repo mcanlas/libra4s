@@ -77,6 +77,8 @@ libra4s is a web-based Scala generated-code exploration tool. The current implem
 - Restoring source from local storage should not trigger autosubmit until the user edits the snippet.
 - Future compiler and `javap` option selections should also persist via local storage once those option controls exist.
 - The page should remain usable for long output.
+- Compiler phase bodies should support lightweight parsing for Scala member declarations so `def` and `val` are visually highlighted in the left pane.
+- Disassembly class bodies should support lightweight parsing for member signatures so fields and methods are visually highlighted in the right pane.
 
 ## Technical Requirements
 
@@ -97,6 +99,12 @@ libra4s is a web-based Scala generated-code exploration tool. The current implem
 - Stage status icons should be attached to their destination pane headers rather than only shown beside the global running indicator.
 - Treat compiler/disassembler command execution as a security boundary before any hosted deployment.
 - Avoid losing structured compiler phase data in the API.
+- Initial member parsing should be server-side and non-destructive, with structured semantic line groups returned to the UI.
+- Parsing should fail soft. If a line does not match expected member patterns, render escaped raw text with no dropped content.
+- First pass scope for compiler highlighting: detect and style `def` and `val` declarations.
+- First pass scope for disassembly highlighting: detect and style member declaration lines (fields and methods) inside each class output block.
+- Both compiler and disassembly structured outputs should support fallback lines with no semantic role/highlighting.
+- Both stage payloads should remain line-list based; semantic structure is additive grouping over lines, not a replacement of line ordering/content.
 
 ## Roadmap
 
@@ -237,6 +245,114 @@ libra4s is a web-based Scala generated-code exploration tool. The current implem
 
    Product synthesis: option selections behave like sticky UI preferences, not saved source content. They should restore independently of compile success so menu state stays predictable across reloads.
 
+18. For member parsing/coloring in the first pass, should highlighting apply only to declaration/signature lines, or also to every reference occurrence?
+
+   Answer: highlight declaration/signature lines only in v1.
+
+   Product synthesis: declaration-only highlighting keeps parsing deterministic, reduces false positives, and preserves low-risk incremental delivery. Reference-level semantic highlighting can be a follow-up feature after baseline member extraction is stable.
+
+19. Should `var` be included with `def` and `val` in first-pass compiler member highlighting?
+
+   Answer: yes, include `var` in v1.
+
+   Product synthesis: `def`/`val`/`var` together cover the core Scala member declaration forms and keep highlighting semantics coherent in the compiler pane.
+
+20. In disassembly member highlighting, should constructors and static initializers (`<init>`, `<clinit>`) be included in v1?
+
+   Answer: implementation should explicitly confirm with the user at implementation time before enabling init-specific highlighting.
+
+   Product synthesis: fields and regular methods can proceed as baseline member highlighting; init-specific treatment is intentionally gated by a final user confirmation due to parsing/display semantics.
+
+21. For compiler-pane member highlighting, should styling apply to the keyword token only (`def`/`val`/`var`) or to the full declaration line?
+
+   Answer: style keyword token only.
+
+   Product synthesis: token-level styling keeps emphasis precise and avoids over-coloring dense compiler output lines.
+
+22. How should member colors be assigned for extensibility across roles?
+
+   Answer: use round-robin color assignment from configured lists, and keep separate color lists per role (for example `def` vs `val`).
+
+   Product synthesis: role-scoped palettes preserve semantic distinctions while round-robin allocation keeps the system extensible as new roles are added.
+
+23. Should color assignment be deterministic by member identity across reruns, or assigned top-down per render?
+
+   Answer: assign top-down per render; do not make assignment reactive to member names.
+
+   Product synthesis: render-order assignment is simpler, predictable in a single output view, and avoids stateful or hash-based color mapping complexity.
+
+24. For disassembly role palettes in v1, should highlighting distinguish at least `field` vs `method`, with constructors/init pending later confirmation?
+
+   Answer: yes, distinguish `field` vs `method` in v1; keep init-specific handling gated by explicit confirmation during implementation.
+
+   Product synthesis: this gives immediate semantic value in the right pane while preserving the agreed safety gate for `<init>` and `<clinit>`.
+
+25. Should role palette definitions live in CSS only, or also be duplicated in JS constants?
+
+   Answer: CSS only.
+
+   Product synthesis: keep parsing/annotation logic in JS and keep visual tokens in CSS so palette tuning does not require JavaScript changes.
+
+26. Should member parsing happen in the UI or server-side before returning the response payload?
+
+   Answer: server-side parsing only; UI should consume structured data and avoid parsing output text.
+
+   Product synthesis: centralizing parsing in the server keeps rules consistent across clients and makes UI rendering simpler and less error-prone.
+
+27. How should non-matching lines be represented in structured outputs?
+
+   Answer: both compiler and disassembly structures must include fallback/no-highlight lines.
+
+   Product synthesis: fallback lines guarantee full-fidelity output rendering while still enabling semantic grouping for matched lines.
+
+28. Should semantic outputs replace raw line lists or remain line-list compatible?
+
+   Answer: remain line-list compatible; semantics are pre-grouped overlays on lists of lines.
+
+   Product synthesis: preserving line-list shape minimizes migration risk and keeps existing rendering/debug workflows intact.
+
+29. For API rollout, should legacy raw `lines` fields remain in parallel with structured fields, or be replaced directly?
+
+   Answer: replace directly; migration compatibility is out of scope.
+
+   Product synthesis: optimize for the target server-structured contract now rather than carrying transitional schema complexity.
+
+30. Should semantic role metadata be per line or per line-group?
+
+   Answer: lines should be grouped, and each line-group should carry an enum role.
+
+   Product synthesis: group-level roles preserve the list-of-lines model while giving rendering a clear semantic contract for highlighting and fallback handling.
+
+31. Should the role enum set be shared across compiler/disassembly, or split by stage?
+
+   Answer: split into two hierarchies: one enum hierarchy for compiler output groups and one for decompiler/disassembly output groups.
+
+   Product synthesis: stage-specific enums keep each contract explicit and prevent leaking stage semantics into a generic catch-all role model.
+
+32. What is the v1 role set for these hierarchies?
+
+   Answer: compiler hierarchy includes `plain`, `def`, `val`, `var`; decompiler hierarchy includes `plain`, `field`, `method`.
+
+   Product synthesis: this provides exact v1 scope while deferring init-related roles until explicit confirmation.
+
+33. Should compiler/decompiler grouped semantics use separate API fields or one shared union field?
+
+   Answer: separate stage-specific fields (Option A).
+
+   Product synthesis: separate fields preserve strong typing per stage, avoid mixed unions in UI code, and keep rendering contracts explicit.
+
+34. Should grouped output preserve exact original line ordering, including adjacent role changes?
+
+   Answer: yes, preserve exact input ordering; only contiguous same-role lines should be grouped.
+
+   Product synthesis: preserving top-to-bottom order keeps semantic grouping lossless and prevents misleading cross-document role aggregation.
+
+35. Should empty lines be preserved or collapsed in grouped output?
+
+   Answer: preserve empty lines exactly as emitted, represented in `plain` groups.
+
+   Product synthesis: preserving empty lines maintains full output fidelity and avoids accidental visual drift versus raw tool output.
+
 ## Open Questions
 
 No open product questions currently block the next implementation tasks. The current task graph is specific enough to continue with `next-task`.
@@ -258,6 +374,29 @@ No open product questions currently block the next implementation tasks. The cur
 - User added long-term goals for async submission with status lights and repeated-request behavior where the newest request wins in the UI.
 - User added a goal for a separate running indicator outside the two output panes, because those panes may still contain existing results while a new request runs.
 - User clarified async status icons: idle can be blank, done can be green checkbox, invalid/error can be red X, and all failures can be red for now.
+
+### 2026-05-15
+
+- User requested parser-backed member highlighting in both panes:
+  - Left/compiler pane: parse and color `def` and `val`.
+  - Right/disassembly pane: parse and color class members.
+- User confirmed v1 highlighting scope: declaration/signature lines only (no reference highlighting yet).
+- User expanded compiler member scope to include `var` in v1.
+- User requested an explicit note: confirm with user during implementation before enabling `<init>` / `<clinit>`-specific highlighting.
+- User chose keyword-only token styling for compiler member declarations.
+- User requested extensible role-based color assignment: round-robin from separate per-role palettes.
+- User chose top-down per-render color assignment rather than member-name-stable assignment.
+- User confirmed v1 disassembly role split: `field` vs `method`, with init-specific highlighting still gated for later confirmation.
+- User chose CSS-only palette definitions, with JS limited to parsing and class assignment.
+- User clarified architecture: parsing must move server-side, UI should receive structured data and not parse.
+- User clarified both compiler/disassembly flows require fallback no-highlight lines.
+- User clarified semantic structures remain list-of-lines based, with additive grouping.
+- User chose direct schema replacement over parallel legacy fields; migration support is out of scope.
+- User specified semantic roles at the line-group level (enum per group), not per individual line.
+- User split semantic roles into two hierarchies: compiler-group enums vs decompiler-group enums.
+- User chose separate stage-specific API fields rather than a shared union field.
+- User confirmed exact input ordering must be preserved, with grouping limited to contiguous same-role runs.
+- User confirmed empty lines should be preserved and represented as `plain` groups.
 - User raised the compiler-success/disassembler-failure edge case; the model should support stage-level status, with overall green only if both stages succeed.
 - User clarified that compiler-success/disassembler-failure should be represented with two explicit stage icons.
 - User clarified that the two stage icons should be shown in their respective pane headers.
