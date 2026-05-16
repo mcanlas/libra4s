@@ -6,9 +6,6 @@ object DependenciesPlugin extends AutoPlugin {
 
   object autoImport {
     implicit class DependencyOps(p: Project) {
-      val circeVersion =
-        "0.14.15"
-
       def withEffectMonad: Project =
         p
           .settings(libraryDependencies += "org.typelevel" %% "cats-effect" % Versions.catsEffect)
@@ -22,7 +19,7 @@ object DependenciesPlugin extends AutoPlugin {
         p
           .settings(
             libraryDependencies ++= Seq(
-              "com.lihaoyi" %% "scalatags" % "0.13.1"
+              "com.lihaoyi" %% "scalatags" % Versions.scalatags
             )
           )
 
@@ -49,8 +46,8 @@ object DependenciesPlugin extends AutoPlugin {
       def withJson: Project =
         p.settings(
           libraryDependencies ++= Seq(
-            "io.circe" %% "circe-generic" % circeVersion,
-            "io.circe" %% "circe-parser"  % circeVersion,
+            "io.circe" %% "circe-generic" % Versions.circe,
+            "io.circe" %% "circe-parser"  % Versions.circe,
           )
         )
 
