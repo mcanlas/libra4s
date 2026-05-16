@@ -47,7 +47,7 @@ object DecompilerRoutes:
                     .traverse: path =>
                       javaDisassembler
                         .run(path.toString)
-                        .map(result => path.getFileName.toString -> result)
+                        .tupleLeft(path.getFileName.toString)
                     .map(results => CompileAndDisassembleResponse.fromCompileSuccess(phases, results))
                 else
                   IO.pure:
