@@ -20,6 +20,14 @@ object FileSystemIO:
     IO.blocking:
       Files.writeString(path, content)
 
+  def readString(path: Path): IO[String] =
+    IO.blocking:
+      Files.readString(path)
+
+  def exists(path: Path): IO[Boolean] =
+    IO.blocking:
+      Files.exists(path)
+
   def resolve(path: Path, child: String): IO[Path] =
     IO.blocking:
       path.resolve(child)
