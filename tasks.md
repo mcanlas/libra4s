@@ -111,10 +111,23 @@
 - [ ] Asset/UI tests verify rendering consumes structured groups without client-side text parsing
 - [ ] Documentation reflects server-side parsing, direct schema replacement, and declaration/signature-only highlighting scope
 
-## hash-model
+## hash-input-model
 
-- [ ] Hash input is canonical and deterministic for equivalent source/options
-- [ ] Hash includes all fields that affect compiler/disassembler outputs
+- [ ] Compiler hash input model includes source text and compiler-relevant option fields
+- [ ] Disassembler hash input model is separate from compiler hash input and includes disassembler-relevant option fields
+- [ ] Hash input models make the current no-option/default-option state explicit without depending on future UI controls
+
+## hash-cacheable-instances
+
+- [ ] Compiler and disassembler hash input models each have a `Cacheable` instance using the existing hash utilities
+- [ ] Canonical strings include a schema/version prefix so future hash changes can be made deliberately
+- [ ] Tests verify identical inputs produce identical slugs and source or option changes produce different slugs
+
+## hash-request-threading
+
+- [ ] Compile route builds compiler and disassembler hash input values from the current request and selected/default options
+- [ ] Hash input construction is covered without changing compile/disassemble execution behavior
+- [ ] No cache reads or writes are introduced in this task
 
 ## compiler-cache
 
