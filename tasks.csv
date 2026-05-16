@@ -18,14 +18,29 @@ member-group-schema-server,false,api-attempt-schema,gpt-5.4,medium,Replace raw s
 compiler-group-parser-server,false,member-group-schema-server,gpt-5.4,high,Implement server-side compiler grouping into contiguous role runs with roles plain def val var and preserved ordering/empty lines.
 disassembly-group-parser-server,false,member-group-schema-server,gpt-5.4,high,Implement server-side disassembly grouping into contiguous role runs with roles plain field method and preserved ordering/empty lines.
 ui-structured-group-rendering,false,"compiler-group-parser-server,disassembly-group-parser-server,collapsible-phases",gpt-5.4-mini,medium,Update UI rendering to consume structured group fields only and apply CSS round-robin palettes by role without text parsing.
-member-highlighting-tests-docs,false,"ui-structured-group-rendering",gpt-5.4-mini,medium,Extend API and asset tests plus README docs for server-side grouped semantics fallback behavior and declaration-signature highlighting scope.
+member-highlighting-server-tests,false,"compiler-group-parser-server,disassembly-group-parser-server",gpt-5.4-mini,medium,Add focused server tests for grouped schema serialization role enums fallback lines and ordering.
+member-highlighting-ui-tests,false,ui-structured-group-rendering,gpt-5.4-mini,medium,Add focused asset or UI tests proving rendering consumes structured groups without client-side text parsing.
+member-highlighting-docs,false,"member-highlighting-server-tests,member-highlighting-ui-tests",gpt-5.4-mini,low,Document server-side grouped semantics fallback behavior and declaration-signature highlighting scope.
 hash-input-model,false,api-attempt-schema,gpt-5.4,medium,Define stage-specific hash input models for compiler and disassembler cache keys.
 hash-cacheable-instances,false,hash-input-model,gpt-5.4-mini,medium,Add Cacheable instances and deterministic slug tests for compiler and disassembler hash inputs.
 hash-request-threading,false,hash-cacheable-instances,gpt-5.4,medium,Thread stage-specific hash inputs through compile request handling without enabling caching yet.
 compiler-cache,false,"hash-request-threading,compiler-attempt",gpt-5.4,high,Cache compiler results by compiler-specific hash.
 disassembler-cache,false,"hash-request-threading,disassembler-attempt",gpt-5.4,high,Cache disassembler results by disassembler-specific hash.
 option-research,false,prd-draft,gpt-5.4,high,Research useful compiler and javap options before adding checkbox controls.
-compiler-options,false,"option-research,compiler-cache,persist-source-local-storage",gpt-5.4,high,"Add compiler option checkboxes only after research identifies useful options, and persist selections immediately via local storage."
-javap-options,false,"option-research,disassembler-cache,persist-source-local-storage",gpt-5.4,high,"Add javap option checkboxes only after research identifies useful options, and persist selections immediately via local storage."
-javap-line-numbers,false,javap-options,gpt-5.4,high,Enable javap line number table output and parse line mappings into structured response data.
-compare-snippets,false,"compiler-cache,disassembler-cache,collapsible-phases,pane-stage-icons",gpt-5.5,medium,Support comparing two Scala snippets and generated outputs side by side.
+compiler-options-model,false,"option-research,hash-request-threading",gpt-5.4,medium,Define compiler option selection model defaults and hash participation without UI or execution changes.
+compiler-options-api,false,compiler-options-model,gpt-5.4,medium,Accept compiler option selections in the compile request contract.
+compiler-options-execution,false,"compiler-options-api,compiler-cache",gpt-5.4,medium,Pass selected compiler options into compiler command construction.
+compiler-options-storage,false,"compiler-options-model,persist-source-local-storage",gpt-5.4-mini,medium,Persist compiler option selections immediately in browser local storage.
+compiler-options-ui,false,"compiler-options-api,compiler-options-storage,compiler-options-execution",gpt-5.4-mini,medium,Render researched compiler option controls and submit selected values.
+compiler-options-tests-docs,false,compiler-options-ui,gpt-5.4-mini,medium,Add focused tests and README notes for compiler option request execution storage and UI behavior.
+javap-options-model,false,"option-research,hash-request-threading",gpt-5.4,medium,Define javap option selection model defaults and hash participation without UI or execution changes.
+javap-options-api,false,javap-options-model,gpt-5.4,medium,Accept javap option selections in the compile request contract.
+javap-options-execution,false,"javap-options-api,disassembler-cache",gpt-5.4,medium,Pass selected javap options into disassembler command construction.
+javap-options-storage,false,"javap-options-model,persist-source-local-storage",gpt-5.4-mini,medium,Persist javap option selections immediately in browser local storage.
+javap-options-ui,false,"javap-options-api,javap-options-storage,javap-options-execution",gpt-5.4-mini,medium,Render researched javap option controls and submit selected values.
+javap-options-tests-docs,false,javap-options-ui,gpt-5.4-mini,medium,Add focused tests and README notes for javap option request execution storage and UI behavior.
+javap-line-numbers,false,javap-options-tests-docs,gpt-5.4,high,Enable javap line number table output and parse line mappings into structured response data.
+compare-snippets-model,false,"compiler-cache,disassembler-cache",gpt-5.4,high,Define two-snippet request response and state model boundaries for isolated generated outputs.
+compare-snippets-execution,false,compare-snippets-model,gpt-5.4,high,Run compiler and disassembler flows independently for each compared snippet without cross-contamination.
+compare-snippets-ui,false,"compare-snippets-execution,collapsible-phases,pane-stage-icons",gpt-5.4,high,Render two snippet inputs with isolated compiler and disassembler outputs per snippet.
+compare-snippets-tests-docs,false,compare-snippets-ui,gpt-5.4,medium,Add comparison tests and documentation for side-by-side generated output inspection.

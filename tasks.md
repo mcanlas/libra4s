@@ -104,12 +104,23 @@
 - [ ] CSS-only role palettes are applied with top-down round-robin assignment per render
 - [ ] Fallback `plain` groups render with no highlight and preserve original line text/spacing
 
-## member-highlighting-tests-docs
+## member-highlighting-server-tests
 
-- [ ] Tests cover server grouped-schema serialization for both stage hierarchies and role enums
-- [ ] Tests verify fallback behavior for unmatched and empty lines, including preserved ordering and contiguous grouping
-- [ ] Asset/UI tests verify rendering consumes structured groups without client-side text parsing
-- [ ] Documentation reflects server-side parsing, direct schema replacement, and declaration/signature-only highlighting scope
+- [ ] Server tests cover grouped-schema serialization for both stage hierarchies and role enums
+- [ ] Tests verify fallback behavior for unmatched and empty lines
+- [ ] Tests verify preserved ordering and contiguous grouping without exercising UI rendering
+
+## member-highlighting-ui-tests
+
+- [ ] Asset or UI tests verify rendering consumes structured groups without client-side text parsing
+- [ ] Tests cover fallback `plain` group rendering and role class assignment
+- [ ] Tests do not modify server parser expectations
+
+## member-highlighting-docs
+
+- [ ] Documentation reflects server-side parsing and direct schema replacement
+- [ ] Documentation states declaration/signature-only highlighting scope
+- [ ] Documentation describes fallback no-highlight line behavior
 
 ## hash-input-model
 
@@ -144,17 +155,77 @@
 - [ ] Document selected `scalac` and `javap` options with rationale for this workflow
 - [ ] Document rejected options only when rejection affects later UX choices
 
-## compiler-options
+## compiler-options-model
 
-- [ ] UI exposes researched `scalac` options and sends selections through request/hash
-- [ ] Backend honors selected `scalac` options during execution
-- [ ] Selected `scalac` options persist immediately on menu change via local storage and restore on page load
+- [ ] Compiler option selection model represents researched options and defaults
+- [ ] Compiler option defaults preserve current `scalac` behavior when no option is selected
+- [ ] Compiler option selections are included in compiler hash input construction
 
-## javap-options
+## compiler-options-api
 
-- [ ] UI exposes researched `javap` options and sends selections through request/hash
-- [ ] Backend honors selected `javap` options during execution
-- [ ] Selected `javap` options persist immediately on menu change via local storage and restore on page load
+- [ ] Compile request contract accepts compiler option selections
+- [ ] Missing compiler option fields decode to the model defaults
+- [ ] API contract tests cover selected and default compiler option payloads
+
+## compiler-options-execution
+
+- [ ] Backend passes selected compiler options into `scalac` command construction
+- [ ] Existing required compiler flags remain present unless explicitly superseded by researched options
+- [ ] Focused core or route test proves selected options reach the compiler command
+
+## compiler-options-storage
+
+- [ ] Compiler option selections persist immediately on menu change via local storage
+- [ ] Saved compiler option selections restore on page load
+- [ ] Storage behavior is verified without requiring backend execution changes
+
+## compiler-options-ui
+
+- [ ] UI exposes researched compiler option controls
+- [ ] UI submits selected compiler option values through the compile request
+- [ ] UI keeps current default compiler behavior when no options are selected
+
+## compiler-options-tests-docs
+
+- [ ] Tests cover compiler option request decoding execution storage and UI behavior at focused surfaces
+- [ ] README documents available compiler options and default behavior
+- [ ] Documentation reflects immediate option persistence via local storage
+
+## javap-options-model
+
+- [ ] Javap option selection model represents researched options and defaults
+- [ ] Javap option defaults preserve current right-pane behavior when no option is selected
+- [ ] Javap option selections are included in disassembler hash input construction
+
+## javap-options-api
+
+- [ ] Compile request contract accepts javap option selections
+- [ ] Missing javap option fields decode to the model defaults
+- [ ] API contract tests cover selected and default javap option payloads
+
+## javap-options-execution
+
+- [ ] Backend passes selected javap options into disassembler command construction
+- [ ] Existing required javap flags remain present unless explicitly superseded by researched options
+- [ ] Focused core or route test proves selected options reach the javap command
+
+## javap-options-storage
+
+- [ ] Javap option selections persist immediately on menu change via local storage
+- [ ] Saved javap option selections restore on page load
+- [ ] Storage behavior is verified without requiring backend execution changes
+
+## javap-options-ui
+
+- [ ] UI exposes researched javap option controls
+- [ ] UI submits selected javap option values through the compile request
+- [ ] UI keeps current default right-pane behavior when no options are selected
+
+## javap-options-tests-docs
+
+- [ ] Tests cover javap option request decoding execution storage and UI behavior at focused surfaces
+- [ ] README documents available javap options and default behavior
+- [ ] Documentation reflects immediate option persistence via local storage
 
 ## javap-line-numbers
 
@@ -162,7 +233,25 @@
 - [ ] Backend parses line number entries into structured class/method mappings
 - [ ] API response exposes parsed line mappings without breaking existing disassembly output
 
-## compare-snippets
+## compare-snippets-model
+
+- [ ] Two-snippet request/response model represents isolated left and right snippet inputs
+- [ ] Model preserves separate compiler and disassembler stage attempts per snippet
+- [ ] Defaults preserve the existing single-snippet flow until comparison UI is used
+
+## compare-snippets-execution
+
+- [ ] Backend runs compile and disassemble flow independently for each compared snippet
+- [ ] Failures in one snippet do not overwrite or hide the other snippet result
+- [ ] Focused test proves outputs remain associated with the correct snippet
+
+## compare-snippets-ui
 
 - [ ] UI supports two snippet inputs with isolated compiler/disassembler outputs per snippet
+- [ ] Existing collapsible phase and stage icon behavior applies independently to each snippet
 - [ ] Comparison view enables practical side-by-side inspection without cross-contamination
+
+## compare-snippets-tests-docs
+
+- [ ] Tests cover side-by-side comparison behavior across successful and failed snippet attempts
+- [ ] Documentation explains comparison scope and the two-browser-window fallback no longer being required
