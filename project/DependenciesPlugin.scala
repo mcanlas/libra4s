@@ -15,7 +15,7 @@ object DependenciesPlugin extends AutoPlugin {
 
       def withLogging: Project =
         p.settings(
-          libraryDependencies += "org.slf4j" % "slf4j-simple" % "2.0.17"
+          libraryDependencies += "org.slf4j" % "slf4j-simple" % Versions.slf4jSimple
         )
 
       def withHtmlTemplating =
