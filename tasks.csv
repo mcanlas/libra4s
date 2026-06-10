@@ -14,9 +14,9 @@ last-request-wins,true,running-indicator,gpt-5.4,high,Ensure stale async respons
 explicit-run-async,true,"running-indicator,last-request-wins",gpt-5.4-mini,low,Keep async submission tied to the explicit Run action.
 persist-source-local-storage,true,explicit-run-async,gpt-5.4,medium,Save the most recently successful source form text to local storage and restore it automatically on page initialization.
 debounce-autosubmit,true,"persist-source-local-storage,running-indicator,last-request-wins",gpt-5.4-mini,medium,"Add 300ms debounce-on-edit auto-submission while keeping Run as a manual rerun control."
-member-group-schema-server,false,api-attempt-schema,gpt-5.4-mini,high,Replace raw stage line payloads with server-side grouped line schemas using separate compiler/decompiler role hierarchies.
-compiler-group-parser-server,false,member-group-schema-server,gpt-5.4-mini,high,Implement server-side compiler grouping into contiguous role runs with roles plain def val var and preserved ordering/empty lines.
-disassembly-group-parser-server,false,member-group-schema-server,gpt-5.4-mini,high,Implement server-side disassembly grouping into contiguous role runs with roles plain field method and preserved ordering/empty lines.
+member-group-schema-server,true,api-attempt-schema,gpt-5.4-mini,high,Replace raw stage line payloads with server-side grouped line schemas using separate compiler/decompiler role hierarchies.
+compiler-group-parser-server,true,member-group-schema-server,gpt-5.4-mini,high,Implement server-side compiler grouping into separate indentation-owned declaration blocks with roles plain def val var and preserved ordering/empty lines.
+disassembly-group-parser-server,true,member-group-schema-server,gpt-5.4-mini,high,Implement server-side disassembly grouping into separate indentation-owned member blocks with roles plain field method and preserved ordering/empty lines.
 ui-structured-group-rendering,false,"compiler-group-parser-server,disassembly-group-parser-server,collapsible-phases",gpt-5.4,medium,Update UI rendering to consume structured group fields only and apply CSS round-robin palettes by role without text parsing.
 member-highlighting-server-tests,false,"compiler-group-parser-server,disassembly-group-parser-server",gpt-5.4-mini,medium,Add focused server tests for grouped schema serialization role enums fallback lines and ordering.
 member-highlighting-ui-tests,false,ui-structured-group-rendering,gpt-5.4-mini,medium,Add focused asset or UI tests proving rendering consumes structured groups without client-side text parsing.

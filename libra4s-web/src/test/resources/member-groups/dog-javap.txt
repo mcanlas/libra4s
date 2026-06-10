@@ -1,0 +1,23 @@
+Compiled from "Dog.scala"
+public class Dog implements scala.Product,java.io.Serializable {
+  private final java.lang.String n;
+  static {};
+
+  public Dog(java.lang.String);
+    Code:
+       0: aload_0
+       1: aload_1
+       2: putfield      #15                 // Field n:Ljava/lang/String;
+       5: return
+
+  public java.lang.String n();
+    Code:
+       0: aload_0
+       1: getfield      #15                 // Field n:Ljava/lang/String;
+       4: areturn
+
+  public Dog copy(java.lang.String);
+    Code:
+       0: new           #2                  // class Dog
+       3: areturn
+}

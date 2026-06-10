@@ -12,11 +12,17 @@ object DecompilerAssetsSpec extends FunSuite:
   private val localStorageJsResource =
     "local-storage.js"
 
+  private val decompilerCssResource =
+    "decompiler.css"
+
   private lazy val maybeDecompilerJavascript =
     readResource(decompilerJsResource)
 
   private lazy val maybeLocalStorageJavascript =
     readResource(localStorageJsResource)
+
+  private lazy val maybeDecompilerCss =
+    readResource(decompilerCssResource)
 
   private def readResource(resource: String) =
     Option(getClass.getClassLoader.getResourceAsStream(resource))
@@ -37,6 +43,14 @@ object DecompilerAssetsSpec extends FunSuite:
 
       case None =>
         failure(s"missing test resource: $localStorageJsResource")
+
+  private def withDecompilerCss[A](f: String => A) =
+    maybeDecompilerCss match
+      case Some(css) =>
+        f(css)
+
+      case None =>
+        failure(s"missing test resource: $decompilerCssResource")
 
   test("loads encapsulated local storage API and restores saved source on page load"):
     withDecompilerJs: js =>
@@ -73,6 +87,85 @@ object DecompilerAssetsSpec extends FunSuite:
         expect(
           js.contains("""outputDisassembly.classList.toggle("has-structured-output", hasJavapOutputs(data.javap));""")
         )
+
+  test("renders compiler phase lines from grouped response fields"):
+    withDecompilerJs: js =>
+      expect(js.contains("const groupedLines = groups =>")) &&
+        expect(js.contains("const lines = groupedLines(phase?.groups).join(\"\\n\");")) &&
+        expect(!js.contains("Array.isArray(phase?.lines)"))
+
+  test("renders javap class lines from grouped response fields"):
+    withDecompilerJs: js =>
+      expect(js.contains("output?.groups,")) &&
+        expect(js.contains("formatLineWithCommentHighlight")) &&
+        expect(!js.contains("Array.isArray(output?.lines)"))
+
+  test("grouped line extraction preserves group and line ordering"):
+    withDecompilerJs: js =>
+      expect(
+        js.contains(
+          "groups.flatMap(group => Array.isArray(group?.lines) ? group.lines : [])"
+        )
+      )
+
+  test("renders each compiler and javap group as a separately styled element"):
+    withDecompilerJs: js =>
+      expect(js.contains("const formatMemberGroupsHtml =")) &&
+        expect(js.contains("member-group ${kind}-member-group")) &&
+        expect(js.contains("member-role-${role}")) &&
+        expect(js.contains("phase?.groups,")) &&
+        expect(js.contains("\"compiler\",")) &&
+        expect(js.contains("output?.groups,")) &&
+        expect(js.contains("\"javap\","))
+
+  test("assigns colors by semantic role instead of group position"):
+    withDecompilerJs: js =>
+      expect(!js.contains("memberPaletteSize")) &&
+        expect(!js.contains("PaletteIndex")) &&
+        expect(!js.contains("member-palette-"))
+
+  test("alternates full and faded variants within consecutive same-role groups"):
+    withDecompilerJs: js =>
+      expect(js.contains("let previousRole = null;")) &&
+        expect(js.contains("let sameRoleIndex = 0;")) &&
+        expect(js.contains("sameRoleIndex = role === previousRole ? sameRoleIndex + 1 : 0;")) &&
+        expect(js.contains("""const variant = sameRoleIndex % 2 === 0 ? "full" : "faded";""")) &&
+        expect(js.contains("member-variant-${variant}"))
+
+  test("defines independent semantic color mappings for compiler and javap roles"):
+    withDecompilerCss: css =>
+      expect(css.contains(".compiler-member-group.member-role-def")) &&
+        expect(css.contains("rgba(76, 175, 80, 0.17)")) &&
+        expect(css.contains(".compiler-member-group.member-role-val")) &&
+        expect(css.contains("rgba(244, 67, 54, 0.15)")) &&
+        expect(css.contains(".compiler-member-group.member-role-var")) &&
+        expect(css.contains("rgba(255, 193, 7, 0.19)")) &&
+        expect(css.contains(".javap-member-group.member-role-field")) &&
+        expect(css.contains(".javap-member-group.member-role-method")) &&
+        expect(css.contains(".member-group.member-role-plain"))
+
+  test("defines faded variants from the same semantic base colors"):
+    withDecompilerCss: css =>
+      expect(css.contains(".compiler-member-group.member-role-def.member-variant-faded")) &&
+        expect(css.contains("rgba(76, 175, 80, 0.04)")) &&
+        expect(css.contains(".compiler-member-group.member-role-val.member-variant-faded")) &&
+        expect(css.contains("rgba(244, 67, 54, 0.04)")) &&
+        expect(css.contains(".compiler-member-group.member-role-var.member-variant-faded")) &&
+        expect(css.contains("rgba(255, 193, 7, 0.05)")) &&
+        expect(css.contains(".javap-member-group.member-role-field.member-variant-faded")) &&
+        expect(css.contains(".javap-member-group.member-role-method.member-variant-faded")) &&
+        expect(css.contains("rgba(33, 150, 243, 0.04)"))
+
+  test("renders plain groups without a background or colored edge"):
+    withDecompilerCss: css =>
+      expect(
+        css.contains(
+          """.member-group.member-role-plain {
+  border-left-color: transparent;
+  background: transparent;
+}"""
+        )
+      )
 
   test("adds ghost marker to compiler phase heading when phase body is blank"):
     withDecompilerJs: js =>

@@ -120,14 +120,90 @@ body {
   white-space: normal;
 }
 
-.compiler-phase-lines,
-.javap-class-lines {
-  margin: 0;
-  padding: 10px;
+.compiler-phase-groups,
+.javap-class-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px;
   border-top: 1px solid #ddd;
   overflow: auto;
+}
+
+/* preserve member roles and source order as individually styled line groups */
+.member-group {
+  margin: 0;
+  padding: 8px 10px;
+  border-left: 4px solid transparent;
+  border-radius: 4px;
   white-space: pre;
   font-family: monospace;
+}
+
+/* compiler def: green with a soft mint background */
+.compiler-member-group.member-role-def {
+  border-left-color: rgba(76, 175, 80, 0.56);
+  background: rgba(76, 175, 80, 0.17);
+}
+
+/* compiler def faded: the same green at quarter strength */
+.compiler-member-group.member-role-def.member-variant-faded {
+  border-left-color: rgba(76, 175, 80, 0.14);
+  background: rgba(76, 175, 80, 0.04);
+}
+
+/* compiler val: red with a soft blush background */
+.compiler-member-group.member-role-val {
+  border-left-color: rgba(244, 67, 54, 0.50);
+  background: rgba(244, 67, 54, 0.15);
+}
+
+/* compiler val faded: the same red at quarter strength */
+.compiler-member-group.member-role-val.member-variant-faded {
+  border-left-color: rgba(244, 67, 54, 0.13);
+  background: rgba(244, 67, 54, 0.04);
+}
+
+/* compiler var: yellow with a soft warm background */
+.compiler-member-group.member-role-var {
+  border-left-color: rgba(255, 193, 7, 0.60);
+  background: rgba(255, 193, 7, 0.19);
+}
+
+/* compiler var faded: the same yellow at quarter strength */
+.compiler-member-group.member-role-var.member-variant-faded {
+  border-left-color: rgba(255, 193, 7, 0.15);
+  background: rgba(255, 193, 7, 0.05);
+}
+
+/* javap field: yellow with a soft warm background */
+.javap-member-group.member-role-field {
+  border-left-color: rgba(255, 193, 7, 0.60);
+  background: rgba(255, 193, 7, 0.19);
+}
+
+/* javap field faded: the same yellow at quarter strength */
+.javap-member-group.member-role-field.member-variant-faded {
+  border-left-color: rgba(255, 193, 7, 0.15);
+  background: rgba(255, 193, 7, 0.05);
+}
+
+/* javap method: blue with a soft sky background */
+.javap-member-group.member-role-method {
+  border-left-color: rgba(33, 150, 243, 0.50);
+  background: rgba(33, 150, 243, 0.15);
+}
+
+/* javap method faded: the same blue at quarter strength */
+.javap-member-group.member-role-method.member-variant-faded {
+  border-left-color: rgba(33, 150, 243, 0.13);
+  background: rgba(33, 150, 243, 0.04);
+}
+
+/* plain: no semantic highlight in either pane */
+.member-group.member-role-plain {
+  border-left-color: transparent;
+  background: transparent;
 }
 
 .javap-comment {

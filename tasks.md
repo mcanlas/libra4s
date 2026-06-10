@@ -81,21 +81,21 @@
 
 ## member-group-schema-server
 
-- [ ] API response replaces prior raw stage `lines` payloads with grouped-line schema fields for compiler and disassembly stages
-- [ ] Compiler and disassembly grouped schemas use separate role enums (compiler: `plain|def|val|var`; decompiler: `plain|field|method`)
-- [ ] Group model is line-list compatible: each group contains ordered lines, and stage output remains reconstructible without loss
+- [x] API response replaces prior raw stage `lines` payloads with grouped-line schema fields for compiler and disassembly stages
+- [x] Compiler and disassembly grouped schemas use separate role enums (compiler: `plain|def|val|var`; decompiler: `plain|field|method`)
+- [x] Group model is line-list compatible: each group contains ordered lines, and stage output remains reconstructible without loss
 
 ## compiler-group-parser-server
 
-- [ ] Server groups compiler output into contiguous same-role runs using compiler-role enum
-- [ ] Role detection covers declaration/signature grouping for `def`, `val`, and `var`; unmatched and empty lines are preserved as `plain`
-- [ ] Output ordering matches exact compiler emission order with no cross-document regrouping
+- [x] Server groups each compiler declaration into a separate block using compiler-role enum
+- [x] Role detection covers top-level `def`, `val`, and `var`; each declaration consumes more-indented body lines without parsing nested declarations
+- [x] Output ordering matches exact compiler emission order with no cross-document regrouping
 
 ## disassembly-group-parser-server
 
-- [ ] Server groups per-class disassembly output into contiguous same-role runs using decompiler-role enum
-- [ ] Role detection covers `field` and `method`; unmatched and empty lines are preserved as `plain`
-- [ ] Init-specific highlighting for `<init>` / `<clinit>` is not added in v1 without explicit user confirmation
+- [x] Server groups each per-class disassembly member into a separate block using decompiler-role enum
+- [x] Role detection covers `field` and `method`; each member consumes its more-indented bytecode body while unmatched lines remain `plain`
+- [x] Init-specific highlighting for `<init>` / `<clinit>` is not added in v1 without explicit user confirmation
 
 ## ui-structured-group-rendering
 

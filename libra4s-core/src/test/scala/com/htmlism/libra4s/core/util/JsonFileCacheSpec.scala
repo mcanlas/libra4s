@@ -12,7 +12,8 @@ object JsonFileCacheSpec extends SimpleIOSuite:
 
   object CachedInput:
     given Decoder[CachedInput] = deriveDecoder
-    given Encoder[CachedInput] = deriveEncoder
+    given Encoder[CachedInput] =
+      deriveEncoder
 
     given Cacheable[CachedInput] with
       def canonicalString(a: CachedInput): String =

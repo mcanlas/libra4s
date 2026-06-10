@@ -25,7 +25,7 @@ Paste Scala source, edit or run it, then inspect:
 ## Run locally
 
 ```bash
-sbt web/run
+sbt stage && ./libra4s-web/target/universal/stage/bin/libra4s-web
 ```
 
 The service starts on [http://localhost:8080](http://localhost:8080)

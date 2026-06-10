@@ -11,7 +11,8 @@ import com.htmlism.libra4s.core.ScalaCompiler
 final case class ProcessErrorResponse(exitCode: Int, lines: List[String])
 
 object ProcessErrorResponse:
-  given Encoder[ProcessErrorResponse] = deriveEncoder
+  given Encoder[ProcessErrorResponse] =
+    deriveEncoder
 
 enum StageAttempt[+E, +A]:
   case Success(value: A) extends StageAttempt[Nothing, A]
@@ -37,7 +38,8 @@ object StageAttempt:
 final case class JavapErrorResponse(errors: List[ProcessErrorResponse])
 
 object JavapErrorResponse:
-  given Encoder[JavapErrorResponse] = deriveEncoder
+  given Encoder[JavapErrorResponse] =
+    deriveEncoder
 
 final case class CompileAndDisassembleResponse(
     compiler: StageAttempt[ProcessErrorResponse, CompilerResponse],
@@ -94,23 +96,21 @@ object CompileAndDisassembleResponse:
         val outputs =
           javapResults.collect:
             case (classFile, Right(classLines)) =>
-              JavapClassResponse(classFile, classLines)
+              JavapClassResponse(
+                classFile,
+                JavapMemberGroupParser.parse(classLines)
+              )
 
         StageAttempt.Success(JavapResponse(outputs))
 
   private def toCompilerResponse(compilerPhases: List[ScalaCompiler.Phase]): CompilerResponse =
     CompilerResponse(
-      lines  = dumpCompilerPhases(compilerPhases),
       phases = compilerPhases.map: phase =>
-        CompilerPhaseResponse(phase.hint, phase.lines)
+        CompilerPhaseResponse(
+          phase.hint,
+          CompilerMemberGroupParser.parse(phase.lines)
+        )
     )
 
-  private def dumpCompilerPhases(phases: List[ScalaCompiler.Phase]): String =
-    phases
-      .map: phase =>
-        val header = s"[[${phase.hint}]]"
-        if phase.lines.isEmpty then header
-        else s"$header\n${phase.lines.mkString("\n")}"
-      .mkString("\n\n")
-
-  given Encoder[CompileAndDisassembleResponse] = deriveEncoder
+  given Encoder[CompileAndDisassembleResponse] =
+    deriveEncoder

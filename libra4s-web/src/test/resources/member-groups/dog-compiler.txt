@@ -1,0 +1,15 @@
+package <empty> {
+  case class Dog(n: String) extends Object(), _root_.scala.Product, _root_.scala
+    .Serializable {
+    val n: String
+    def copy(n: String): Dog = new Dog(n)
+    def copy$default$1: String @uncheckedVariance = Dog.this.n
+    def _1: String = this.n
+  }
+  final lazy module val Dog: Dog = new Dog()
+  final module class Dog() extends AnyRef() {
+    def apply(n: String): Dog = new Dog(n)
+    def unapply(x$1: Dog): Dog = x$1
+    override def toString: String = "Dog"
+  }
+}

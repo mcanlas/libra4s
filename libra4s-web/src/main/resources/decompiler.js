@@ -12,6 +12,39 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const formatLines = lines => Array.isArray(lines) ? lines.join("\n") : "";
 
+  const groupedLines = groups =>
+    Array.isArray(groups)
+      ? groups.flatMap(group => Array.isArray(group?.lines) ? group.lines : [])
+      : [];
+
+  const memberRole = group =>
+    typeof group?.role === "string" && /^[a-z]+$/.test(group.role)
+      ? group.role
+      : "plain";
+
+  const formatMemberGroupsHtml = (groups, kind, formatLine) => {
+    let previousRole = null;
+    let sameRoleIndex = 0;
+
+    return Array.isArray(groups)
+      ? groups
+          .map(group => {
+            const role = memberRole(group);
+            const lines = Array.isArray(group?.lines)
+              ? group.lines.map(formatLine).join("\n")
+              : "";
+
+            sameRoleIndex = role === previousRole ? sameRoleIndex + 1 : 0;
+            previousRole = role;
+
+            const variant = sameRoleIndex % 2 === 0 ? "full" : "faded";
+
+            return `<pre class="member-group ${kind}-member-group member-role-${role} member-variant-${variant}">${lines}</pre>`;
+          })
+          .join("")
+      : "";
+  };
+
   const localStorageApi =
     typeof window.libra4sLocalStorage === "object" && window.libra4sLocalStorage !== null
       ? window.libra4sLocalStorage
@@ -74,23 +107,27 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const phaseCounts = new Map();
-
     return `<div class="compiler-phases">${phases
       .map((phase, index) => {
         const key = stablePhaseKey(phase, index, phaseCounts);
         const hint = typeof phase?.hint === "string" && phase.hint.length > 0
           ? phase.hint
           : `Phase ${index + 1}`;
-        const lines = Array.isArray(phase?.lines) ? phase.lines.join("\n") : "";
+        const lines = groupedLines(phase?.groups).join("\n");
         const isBlankBody = lines.trim().length === 0;
         const summarySuffix = isBlankBody ? " 👻" : "";
         const open = expandedCompilerPhaseKeys.has(key)
           ? expandedCompilerPhaseKeys.get(key) === true
           : index === 0;
+        const groupsHtml = formatMemberGroupsHtml(
+          phase?.groups,
+          "compiler",
+          escapeHtml
+        );
 
         return `<details class="compiler-phase" data-phase-key="${escapeHtml(key)}"${open ? " open" : ""}>
   <summary class="compiler-phase-summary">${escapeHtml(hint)}${summarySuffix}</summary>
-  <pre class="compiler-phase-lines">${escapeHtml(lines)}</pre>
+  <div class="compiler-phase-groups">${groupsHtml}</div>
 </details>`;
       })
       .join("")}</div>`;
@@ -202,14 +239,16 @@ document.addEventListener("DOMContentLoaded", () => {
       .map((output, index) => {
         const classFile = typeof output?.classFile === "string" ? output.classFile : "(unknown class)";
         const header = escapeHtml(classFile);
-        const lines = Array.isArray(output?.lines)
-          ? output.lines.map(formatLineWithCommentHighlight).join("\n")
-          : "";
+        const groupsHtml = formatMemberGroupsHtml(
+          output?.groups,
+          "javap",
+          formatLineWithCommentHighlight
+        );
         const open = index === 0;
 
         return `<details class="javap-class"${open ? " open" : ""}>
   <summary class="javap-class-summary">${header}</summary>
-  <pre class="javap-class-lines">${lines}</pre>
+  <div class="javap-class-groups">${groupsHtml}</div>
 </details>`;
       })
       .join("")}</div>`;
