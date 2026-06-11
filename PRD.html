@@ -1,0 +1,570 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>libra4s product requirements</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #172033;
+        --muted: #59657a;
+        --paper: #f7f8fc;
+        --card: #ffffff;
+        --line: #dfe4ee;
+        --blue: #356ae6;
+        --blue-soft: #eaf0ff;
+        --green: #21875b;
+        --green-soft: #e6f6ee;
+        --yellow: #9a6b00;
+        --yellow-soft: #fff5d6;
+        --red: #b44747;
+        --red-soft: #fdecec;
+        --purple: #7655b5;
+        --purple-soft: #f0eafd;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at top left, #eaf0ff 0, transparent 34rem),
+          var(--paper);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.55;
+      }
+
+      main {
+        width: min(1080px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 48px 0 72px;
+      }
+
+      h1,
+      h2,
+      h3 {
+        line-height: 1.2;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(2.3rem, 5vw, 4.5rem);
+        letter-spacing: -0.045em;
+      }
+
+      h2 {
+        margin: 0 0 16px;
+        font-size: 1.5rem;
+      }
+
+      h3 {
+        margin: 22px 0 8px;
+        font-size: 1.05rem;
+      }
+
+      p {
+        margin: 10px 0;
+      }
+
+      ul,
+      ol {
+        margin: 10px 0;
+        padding-left: 1.35rem;
+      }
+
+      li + li {
+        margin-top: 6px;
+      }
+
+      code {
+        padding: 0.12rem 0.35rem;
+        border-radius: 5px;
+        color: #243b70;
+        background: #edf1f8;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 0.92em;
+      }
+
+      .hero {
+        padding: 34px;
+        border: 1px solid #cfd9f2;
+        border-radius: 24px;
+        background: rgb(255 255 255 / 82%);
+        box-shadow: 0 24px 60px rgb(39 67 126 / 10%);
+      }
+
+      .eyebrow {
+        margin: 0 0 10px;
+        color: var(--blue);
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .lede {
+        max-width: 780px;
+        margin: 18px 0 0;
+        color: var(--muted);
+        font-size: 1.18rem;
+      }
+
+      .badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 24px;
+      }
+
+      .badge {
+        padding: 6px 10px;
+        border-radius: 999px;
+        color: #244071;
+        background: var(--blue-soft);
+        font-size: 0.82rem;
+        font-weight: 700;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+      }
+
+      .card {
+        margin-top: 18px;
+        padding: 24px;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: var(--card);
+        box-shadow: 0 10px 30px rgb(36 51 82 / 5%);
+      }
+
+      .card.blue {
+        border-color: #cfd9f2;
+        background: linear-gradient(145deg, #ffffff, var(--blue-soft));
+      }
+
+      .card.green {
+        border-color: #c7e8d7;
+        background: linear-gradient(145deg, #ffffff, var(--green-soft));
+      }
+
+      .card.yellow {
+        border-color: #efdda8;
+        background: linear-gradient(145deg, #ffffff, var(--yellow-soft));
+      }
+
+      .card.red {
+        border-color: #efcece;
+        background: linear-gradient(145deg, #ffffff, var(--red-soft));
+      }
+
+      .card.purple {
+        border-color: #ded1f5;
+        background: linear-gradient(145deg, #ffffff, var(--purple-soft));
+      }
+
+      .section {
+        margin-top: 34px;
+      }
+
+      .section-label {
+        display: inline-block;
+        margin-bottom: 10px;
+        color: var(--muted);
+        font-size: 0.76rem;
+        font-weight: 800;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      .decision {
+        display: grid;
+        grid-template-columns: 9rem 1fr;
+        gap: 14px;
+        padding: 13px 0;
+        border-top: 1px solid var(--line);
+      }
+
+      .decision:first-of-type {
+        border-top: 0;
+      }
+
+      .decision strong {
+        color: #33415e;
+      }
+
+      .roadmap {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .phase {
+        padding: 18px;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: #fff;
+      }
+
+      .phase-number {
+        display: inline-grid;
+        width: 2rem;
+        height: 2rem;
+        place-items: center;
+        border-radius: 50%;
+        color: white;
+        background: var(--blue);
+        font-weight: 800;
+      }
+
+      .footnote {
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      @media (max-width: 780px) {
+        .grid,
+        .roadmap {
+          grid-template-columns: 1fr;
+        }
+
+        .decision {
+          grid-template-columns: 1fr;
+          gap: 3px;
+        }
+
+        .hero {
+          padding: 24px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header class="hero">
+        <p class="eyebrow">product requirements · superseding specification</p>
+        <h1>⚖️ libra4s</h1>
+        <p class="lede">
+          A local browser tool that helps Scala developers understand generated code by connecting one source
+          snippet to structured compiler phases and JVM disassembly.
+        </p>
+        <div class="badges">
+          <span class="badge">Scala 3</span>
+          <span class="badge">http4s</span>
+          <span class="badge">Cats Effect</span>
+          <span class="badge">Circe</span>
+          <span class="badge">Scalatags</span>
+          <span class="badge">local-first</span>
+        </div>
+      </header>
+
+      <section class="section">
+        <span class="section-label">product frame</span>
+        <div class="grid">
+          <article class="card blue">
+            <h2>🎯 Primary job</h2>
+            <p>
+              Move quickly from a small Scala snippet to an understandable view of what the compiler and JVM
+              toolchain generated.
+            </p>
+            <p>
+              Compiler phases and disassembly are complementary views of generated code, not separate products.
+            </p>
+          </article>
+
+          <article class="card green">
+            <h2>👩‍💻 Primary audience</h2>
+            <p>
+              Scala developers learning compiler transformations, investigating generated members, or explaining
+              JVM output without repeatedly assembling local shell commands.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section card">
+        <span class="section-label">goals</span>
+        <h2>✨ Product outcomes</h2>
+        <ul>
+          <li>Make generated Scala and JVM output approachable from one browser screen.</li>
+          <li>Preserve exact tool output while adding structure that improves scanning.</li>
+          <li>Represent compiler and disassembler failures honestly without discarding useful output.</li>
+          <li>Keep repeated exploration fast, deterministic, and eventually cacheable.</li>
+          <li>Support future option controls and snippet comparison without weakening the single-snippet flow.</li>
+          <li>Keep local development simple and avoid hidden client-side parsing rules.</li>
+        </ul>
+      </section>
+
+      <section class="section">
+        <span class="section-label">shipped experience</span>
+        <h2>✅ Current product behavior</h2>
+        <div class="grid">
+          <article class="card">
+            <h3>📝 Input and execution</h3>
+            <ul>
+              <li>One Scala source textarea and one explicit <code>Run</code> action.</li>
+              <li>Editing triggers compilation after a <strong>2000ms</strong> debounce.</li>
+              <li>Manual Run submits immediately and clears any pending automatic submission.</li>
+              <li>Overlapping requests use last-request-wins rendering; stale responses are ignored.</li>
+              <li>The last successfully compiled source is saved and restored through local storage.</li>
+            </ul>
+          </article>
+
+          <article class="card">
+            <h3>⚙️ Compiler stage</h3>
+            <ul>
+              <li>Runs <code>scalac -Vprint:all -color:never</code> against a temporary source file.</li>
+              <li>Returns a structured success or process-error attempt.</li>
+              <li>Parses compiler output into collapsible phase sections.</li>
+              <li>Shows the compiler stage state in the compiler pane header.</li>
+            </ul>
+          </article>
+
+          <article class="card">
+            <h3>🔍 Disassembly stage</h3>
+            <ul>
+              <li>Finds generated class files recursively under the compiler output directory.</li>
+              <li>Runs <code>javap -c</code> for each discovered class file.</li>
+              <li>Preserves class-specific output and process failures.</li>
+              <li>Shows success, failure, running, or skipped state in the disassembly pane header.</li>
+            </ul>
+          </article>
+
+          <article class="card">
+            <h3>🚦 Failure behavior</h3>
+            <ul>
+              <li>Compiler and disassembler attempts have explicit success and failure shapes.</li>
+              <li>Compiler failures render exit code and captured lines in the left pane.</li>
+              <li>Disassembly is visibly skipped when compilation produces no usable class file.</li>
+              <li>The global running indicator is distinct from final stage results.</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="section card green">
+        <span class="section-label">structured generated output</span>
+        <h2>🧩 Member grouping and highlighting</h2>
+
+        <h3>Server contract</h3>
+        <ul>
+          <li>Successful stage payloads use ordered semantic groups rather than legacy raw stage-level line fields.</li>
+          <li>Every group retains an ordered <code>List[String]</code>; flattening groups reconstructs the original output.</li>
+          <li>Compiler roles are <code>plain</code>, <code>def</code>, <code>val</code>, and <code>var</code>.</li>
+          <li>Javap roles are <code>plain</code>, <code>field</code>, and <code>method</code>.</li>
+          <li>Compiler and javap role hierarchies remain separate.</li>
+        </ul>
+
+        <h3>Parser boundary</h3>
+        <ul>
+          <li><code>CompilerMemberGroupParser.scala</code> owns compiler declaration parsing.</li>
+          <li><code>JavapMemberGroupParser.scala</code> owns javap member parsing.</li>
+          <li>Each recognized declaration or member starts a separate group.</li>
+          <li>That group consumes subsequent blank lines and lines indented deeper than its declaration line.</li>
+          <li>Nested declaration-like text inside an owned body is not parsed again.</li>
+          <li>Unrecognized lines fail soft into <code>plain</code> groups; no output is dropped.</li>
+          <li>Constructors are represented as javap methods through their ordinary signatures.</li>
+          <li>Static initializers remain plain; no dedicated init role exists.</li>
+        </ul>
+
+        <h3>Visual treatment</h3>
+        <ul>
+          <li>JavaScript renders one element per server-provided group and does not classify output text.</li>
+          <li>Semantic colors are defined only in CSS.</li>
+          <li>Compiler mapping: <code>def</code> green, <code>val</code> red, <code>var</code> yellow.</li>
+          <li>Javap mapping: <code>field</code> yellow, <code>method</code> blue.</li>
+          <li><code>plain</code> groups have no colored background or edge.</li>
+          <li>Consecutive groups of the same role alternate full and faded variants of the same base color.</li>
+          <li>The full/faded sequence resets when the semantic role changes.</li>
+        </ul>
+
+        <h3>Verification fixtures</h3>
+        <p>
+          Parser tests use compact compiler and javap excerpts derived from
+          <code>case class Dog(n: String)</code>. The fixtures make the relationship between emitted lines and
+          semantic groups reviewable without running the web server.
+        </p>
+      </section>
+
+      <section class="section card red">
+        <span class="section-label">constraints and non-goals</span>
+        <h2>🛑 Boundaries</h2>
+        <div class="grid">
+          <div>
+            <h3>Required constraints</h3>
+            <ul>
+              <li>Keep command execution and filesystem behavior in <code>libra4s-core</code>.</li>
+              <li>Keep HTTP, response shaping, parsers, and browser assets in <code>libra4s-web</code>.</li>
+              <li>Preserve exact output ordering and content.</li>
+              <li>Keep parsing server-side and rendering declarative.</li>
+              <li>Keep compiler and disassembler cache identities separate.</li>
+              <li>Treat command execution as a security boundary before hosted deployment.</li>
+            </ul>
+          </div>
+          <div>
+            <h3>Explicit non-goals</h3>
+            <ul>
+              <li>Arbitrary multi-file builds.</li>
+              <li>A public hosted compiler sandbox without security work.</li>
+              <li>Replacing IDE diagnostics.</li>
+              <li>Reference-occurrence semantic highlighting.</li>
+              <li>Multiple saved browser drafts.</li>
+              <li>Every scalac or javap option.</li>
+              <li>A dedicated constructor or static-initializer role in the current grouping model.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="section card purple">
+        <span class="section-label">architecture decisions</span>
+        <h2>🏗️ Stable decisions</h2>
+        <div class="decision">
+          <strong>Layout</strong>
+          <span>Compiler phases remain on the left; javap output remains on the right.</span>
+        </div>
+        <div class="decision">
+          <strong>Attempt model</strong>
+          <span>Stage status is derived from structured success or process-error attempts rather than duplicated flags.</span>
+        </div>
+        <div class="decision">
+          <strong>Persistence</strong>
+          <span>Source saves only after successful compilation; future option selections save immediately as preferences.</span>
+        </div>
+        <div class="decision">
+          <strong>API rollout</strong>
+          <span>Structured grouped fields replaced legacy success-level raw line fields directly.</span>
+        </div>
+        <div class="decision">
+          <strong>Parsing</strong>
+          <span>Indentation-owned declaration blocks supersede contiguous same-role run grouping.</span>
+        </div>
+        <div class="decision">
+          <strong>Color</strong>
+          <span>Semantic role colors supersede positional round-robin palettes.</span>
+        </div>
+        <div class="decision">
+          <strong>Options</strong>
+          <span>Compiler and javap option sets must be researched before controls are added.</span>
+        </div>
+        <div class="decision">
+          <strong>Caching</strong>
+          <span>Compiler and disassembler hashes must be separate because their inputs and future options differ.</span>
+        </div>
+      </section>
+
+      <section class="section">
+        <span class="section-label">future roadmap</span>
+        <h2>🗺️ Candidate implementation sequence</h2>
+        <div class="roadmap">
+          <article class="phase">
+            <span class="phase-number">1</span>
+            <h3>Define caching contracts</h3>
+            <ul>
+              <li>Define separate compiler and source-derived disassembler keys.</li>
+              <li>Version canonical strings and prove deterministic slugs.</li>
+              <li>Generalize JSON storage to map a typed key to a separate typed value.</li>
+              <li>Model serializable compiler results and restorable class artifacts.</li>
+            </ul>
+          </article>
+
+          <article class="phase">
+            <span class="phase-number">2</span>
+            <h3>Integrate stage caches</h3>
+            <ul>
+              <li>Thread identities through request handling.</li>
+              <li>Restore compiler class artifacts when compilation is cached.</li>
+              <li>Cache compiler and disassembler attempts independently.</li>
+              <li>Test hits, misses, failures, and input invalidation.</li>
+            </ul>
+          </article>
+
+          <article class="phase">
+            <span class="phase-number">3</span>
+            <h3>Add researched controls</h3>
+            <ul>
+              <li>Research useful scalac and javap options.</li>
+              <li>Include selections in stage-specific hashes.</li>
+              <li>Add API, execution, persistence, and UI slices.</li>
+            </ul>
+          </article>
+        </div>
+        <div class="roadmap" style="margin-top: 14px;">
+          <article class="phase">
+            <span class="phase-number">4</span>
+            <h3>Enrich disassembly</h3>
+            <ul>
+              <li>Consider javap line-number tables.</li>
+              <li>Add structured source-line mappings without replacing raw disassembly groups.</li>
+            </ul>
+          </article>
+
+          <article class="phase">
+            <span class="phase-number">5</span>
+            <h3>Compare snippets</h3>
+            <ul>
+              <li>Model isolated attempts for two source snippets.</li>
+              <li>Prevent generated-output cross-contamination.</li>
+              <li>Build comparison UI only after single-snippet caching is stable.</li>
+            </ul>
+          </article>
+
+          <article class="phase">
+            <span class="phase-number">∞</span>
+            <h3>Possible follow-ups</h3>
+            <ul>
+              <li>Search or filter compiler phases.</li>
+              <li>Stable links or shareable cached references.</li>
+              <li>Additional semantic roles based on demonstrated user value.</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="section card blue">
+        <span class="section-label">next task definition</span>
+        <h2>🔐 Deterministic caching foundation</h2>
+        <p>
+          If caching is the next milestone, the first implementation slice should define explicit stage-specific
+          input models without enabling cache reads or writes.
+        </p>
+        <ul>
+          <li>The compiler input includes source text and compiler-relevant option state.</li>
+          <li>The disassembler input includes source identity, compiler option state, and javap option state.</li>
+          <li>Current fixed/default options are represented explicitly so later option controls do not silently change hash meaning.</li>
+          <li>Canonical strings carry schema/version prefixes.</li>
+          <li>Tests prove deterministic equality and sensitivity to relevant input changes.</li>
+          <li>JSON cache storage maps typed keys to separate typed values.</li>
+          <li>Cached compiler successes preserve generated class artifacts so javap can run without invoking scalac again.</li>
+        </ul>
+        <p class="footnote">
+          This contract assumes the compiler and disassembler pipeline is deterministic for the same source and
+          option inputs. Class-file content identity is therefore unnecessary for cache correctness.
+        </p>
+      </section>
+
+      <section class="section status-card">
+        <span class="section-label">settled product decision</span>
+        <h2>🔑 Source-derived disassembler cache identity</h2>
+        <p>
+          Key disassembler results from source identity, compiler option state, and javap option state. The
+          pipeline inputs are assumed to be complete and deterministic, so the cache does not inspect or hash
+          generated class-file bytes.
+        </p>
+      </section>
+
+      <footer class="section footnote">
+        <p>
+          Last synthesized from repository state on 2026-06-11. This document is intended for literal use by a
+          downstream planning agent and should be updated as decisions change.
+        </p>
+      </footer>
+    </main>
+  </body>
+</html>

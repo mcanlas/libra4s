@@ -13,19 +13,21 @@ running-indicator,true,api-attempt-schema,gpt-5.4-mini,medium,Show a running ind
 last-request-wins,true,running-indicator,gpt-5.4,high,Ensure stale async responses cannot overwrite the newest request result.
 explicit-run-async,true,"running-indicator,last-request-wins",gpt-5.4-mini,low,Keep async submission tied to the explicit Run action.
 persist-source-local-storage,true,explicit-run-async,gpt-5.4,medium,Save the most recently successful source form text to local storage and restore it automatically on page initialization.
-debounce-autosubmit,true,"persist-source-local-storage,running-indicator,last-request-wins",gpt-5.4-mini,medium,"Add 300ms debounce-on-edit auto-submission while keeping Run as a manual rerun control."
+debounce-autosubmit,true,"persist-source-local-storage,running-indicator,last-request-wins",gpt-5.4-mini,medium,"Add 2000ms debounce-on-edit auto-submission while keeping Run as a manual rerun control."
 member-group-schema-server,true,api-attempt-schema,gpt-5.4-mini,high,Replace raw stage line payloads with server-side grouped line schemas using separate compiler/decompiler role hierarchies.
 compiler-group-parser-server,true,member-group-schema-server,gpt-5.4-mini,high,Implement server-side compiler grouping into separate indentation-owned declaration blocks with roles plain def val var and preserved ordering/empty lines.
 disassembly-group-parser-server,true,member-group-schema-server,gpt-5.4-mini,high,Implement server-side disassembly grouping into separate indentation-owned member blocks with roles plain field method and preserved ordering/empty lines.
-ui-structured-group-rendering,false,"compiler-group-parser-server,disassembly-group-parser-server,collapsible-phases",gpt-5.4,medium,Update UI rendering to consume structured group fields only and apply CSS round-robin palettes by role without text parsing.
-member-highlighting-server-tests,false,"compiler-group-parser-server,disassembly-group-parser-server",gpt-5.4-mini,medium,Add focused server tests for grouped schema serialization role enums fallback lines and ordering.
-member-highlighting-ui-tests,false,ui-structured-group-rendering,gpt-5.4-mini,medium,Add focused asset or UI tests proving rendering consumes structured groups without client-side text parsing.
-member-highlighting-docs,false,"member-highlighting-server-tests,member-highlighting-ui-tests",gpt-5.4-mini,low,Document server-side grouped semantics fallback behavior and declaration-signature highlighting scope.
-hash-input-model,false,api-attempt-schema,gpt-5.4-mini,medium,Define stage-specific hash input models for compiler and disassembler cache keys.
+ui-structured-group-rendering,true,"compiler-group-parser-server,disassembly-group-parser-server,collapsible-phases",gpt-5.4,medium,Render structured groups with semantic CSS roles and alternating full or faded variants without client-side text parsing.
+member-highlighting-server-tests,true,"compiler-group-parser-server,disassembly-group-parser-server",gpt-5.4-mini,medium,Test grouped schema serialization and indentation-owned compiler and javap parsing with reviewable Dog fixtures.
+member-highlighting-ui-tests,true,ui-structured-group-rendering,gpt-5.4-mini,medium,Test structured group rendering semantic role classes alternating variants and transparent plain groups.
+member-highlighting-docs,true,"member-highlighting-server-tests,member-highlighting-ui-tests",gpt-5.4-mini,low,Document server-side grouping parser boundaries semantic role colors and plain fallback behavior in the source-of-truth PRD.
+hash-input-model,false,api-attempt-schema,gpt-5.4-mini,medium,Define separate compiler and source-derived disassembler cache key models with explicit current option state.
 hash-cacheable-instances,false,hash-input-model,gpt-5.4-mini,medium,Add Cacheable instances and deterministic slug tests for compiler and disassembler hash inputs.
+keyed-cache-storage,false,hash-cacheable-instances,gpt-5.4,high,Generalize JSON cache storage to read and write a typed value using a separate typed cache key.
+compiler-cache-payload,false,hash-input-model,gpt-5.4,high,Define a serializable compiler cache payload that preserves the attempt and generated class artifacts required by javap.
 hash-request-threading,false,hash-cacheable-instances,gpt-5.4-mini,medium,Thread stage-specific hash inputs through compile request handling without enabling caching yet.
-compiler-cache,false,"hash-request-threading,compiler-attempt",gpt-5.4,high,Cache compiler results by compiler-specific hash.
-disassembler-cache,false,"hash-request-threading,disassembler-attempt",gpt-5.4,high,Cache disassembler results by disassembler-specific hash.
+compiler-cache,false,"hash-request-threading,keyed-cache-storage,compiler-cache-payload,compiler-attempt",gpt-5.4,high,Cache compiler attempts and restorable class artifacts by compiler-specific key.
+disassembler-cache,false,"hash-request-threading,keyed-cache-storage,compiler-cache,disassembler-attempt",gpt-5.4,high,Cache disassembler attempts by source-derived disassembler key.
 option-research,false,prd-draft,gpt-5.4,high,Research useful compiler and javap options before adding checkbox controls.
 compiler-options-model,false,"option-research,hash-request-threading",gpt-5.4-mini,medium,Define compiler option selection model defaults and hash participation without UI or execution changes.
 compiler-options-api,false,compiler-options-model,gpt-5.4-mini,medium,Accept compiler option selections in the compile request contract.
@@ -42,5 +44,6 @@ javap-options-tests-docs,false,javap-options-ui,gpt-5.4-mini,medium,Add focused 
 javap-line-numbers,false,javap-options-tests-docs,gpt-5.4,high,Enable javap line number table output and parse line mappings into structured response data.
 compare-snippets-model,false,"compiler-cache,disassembler-cache",gpt-5.5,high,Define two-snippet request response and state model boundaries for isolated generated outputs.
 compare-snippets-execution,false,compare-snippets-model,gpt-5.5,high,Run compiler and disassembler flows independently for each compared snippet without cross-contamination.
-compare-snippets-ui,false,"compare-snippets-execution,collapsible-phases,pane-stage-icons",gpt-5.5,high,Render two snippet inputs with isolated compiler and disassembler outputs per snippet.
+compare-snippets-ui-layout,false,"compare-snippets-model,collapsible-phases,pane-stage-icons",gpt-5.4,high,Add a two-snippet input and output layout with isolated browser state while preserving the single-snippet default.
+compare-snippets-ui,false,"compare-snippets-execution,compare-snippets-ui-layout",gpt-5.5,high,Render each comparison result into its own compiler and disassembler panes without cross-contamination.
 compare-snippets-tests-docs,false,compare-snippets-ui,gpt-5.4,medium,Add comparison tests and documentation for side-by-side generated output inspection.
