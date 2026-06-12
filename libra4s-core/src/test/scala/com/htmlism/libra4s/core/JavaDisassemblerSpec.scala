@@ -3,6 +3,9 @@ package com.htmlism.libra4s.core
 import cats.effect.*
 import weaver.*
 
+import com.htmlism.rufio.cats.io.syntax.*
+import com.htmlism.rufio.core.Path
+
 object JavaDisassemblerSpec extends IOSuite:
   type Res = (ScalaCompiler, JavaDisassembler)
 
@@ -21,10 +24,13 @@ object JavaDisassemblerSpec extends IOSuite:
     val scalaSource = """case class Cat(name: String)"""
 
     for
-      tempScalaPath <- FileSystemIO
-        .createTempFile("cat", ".scala")
-      _ <- FileSystemIO
-        .writeString(tempScalaPath, scalaSource)
+      tempDirectory <- Path.createTemporaryDirectory
+
+      tempScalaPath = tempDirectory
+        .resolve("Cat.scala")
+
+      _ <- tempScalaPath
+        .writeString(scalaSource)
       // Compile the Scala file
       compileResult <- scalaCompiler
         .run(tempScalaPath.toString)

@@ -1,11 +1,11 @@
 package com.htmlism.libra4s.core.util
 
+import java.nio.file.Files
+
 import cats.effect.IO
 import cats.effect.Resource
 import io.circe.Decoder
 import io.circe.Encoder
-
-import com.htmlism.libra4s.core.FileSystemIO
 
 trait JsonFileCache:
   def get[A](a: A)(using Cacheable[A], Decoder[A], Encoder[A]): IO[Option[A]]
@@ -19,6 +19,7 @@ object JsonFileCache:
   def temporary(prefix: String): Resource[IO, JsonFileCache] =
     Resource
       .eval:
-        FileSystemIO
-          .createTempDirectory(prefix)
+        IO
+          .blocking:
+            Files.createTempDirectory(s"$prefix-")
           .map(TemporaryJsonFileCache(_))

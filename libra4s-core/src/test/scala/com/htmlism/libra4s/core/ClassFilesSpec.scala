@@ -3,7 +3,7 @@ package com.htmlism.libra4s.core
 import cats.effect.*
 import weaver.*
 
-object FileSystemIOSpec extends IOSuite:
+object ClassFilesSpec extends IOSuite:
   type Res = ScalaCompiler
 
   def sharedResource: Resource[IO, ScalaCompiler] =
@@ -25,8 +25,8 @@ object FileSystemIOSpec extends IOSuite:
           IO.pure(failure(s"compilation failed with exit code ${err.exitCode}"))
 
         case Right((tempDir, _)) =>
-          FileSystemIO
-            .findClassFiles(tempDir)
+          ClassFiles
+            .findUnder(tempDir)
             .map: classFiles =>
               val hasNestedPackageClass =
                 classFiles.exists: path =>

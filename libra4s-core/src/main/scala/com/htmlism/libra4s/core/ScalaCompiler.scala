@@ -1,24 +1,24 @@
 package com.htmlism.libra4s.core
 
-import java.nio.file.Path
-
 import cats.data.NonEmptyList
 import cats.effect.*
 import cats.syntax.all.*
+
+import com.htmlism.rufio.cats.io.syntax.*
+import com.htmlism.rufio.core.Path
 
 final case class ScalaCompiler private (command: String):
   def compileCode(
       code: String
   ): IO[Either[ProcessRunner.ProcessRunnerError, (Path, List[ScalaCompiler.Phase])]] =
     for
-      tempDir <- FileSystemIO
-        .createTempDirectory("libra4s-compile")
+      tempDir <- Path.createTemporaryDirectory
 
-      scalaFilePath <- FileSystemIO
-        .resolve(tempDir, "Input.scala")
+      scalaFilePath = tempDir
+        .resolve("Input.scala")
 
-      _ <- FileSystemIO
-        .writeString(scalaFilePath, code)
+      _ <- scalaFilePath
+        .writeString(code)
 
       phasesResult <- runWithPhases(scalaFilePath.toString, tempDir.toString)
     yield phasesResult

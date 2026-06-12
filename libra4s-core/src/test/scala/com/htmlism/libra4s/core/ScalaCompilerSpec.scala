@@ -3,6 +3,9 @@ package com.htmlism.libra4s.core
 import cats.effect.*
 import weaver.*
 
+import com.htmlism.rufio.cats.io.syntax.*
+import com.htmlism.rufio.core.Path
+
 object ScalaCompilerSpec extends IOSuite:
   type Res = ScalaCompiler
 
@@ -14,10 +17,13 @@ object ScalaCompilerSpec extends IOSuite:
     val scalaSource = """case class Dog(n: String)"""
 
     for
-      tempFilePath <- FileSystemIO
-        .createTempFile("dog", ".scala")
-      _ <- FileSystemIO
-        .writeString(tempFilePath, scalaSource)
+      tempDirectory <- Path.createTemporaryDirectory
+
+      tempFilePath = tempDirectory
+        .resolve("Dog.scala")
+
+      _ <- tempFilePath
+        .writeString(scalaSource)
 
       phasesResult <- scalaCompiler
         .runWithPhases(tempFilePath.toString)

@@ -15,6 +15,11 @@ object DependenciesPlugin extends AutoPlugin {
           libraryDependencies += "org.slf4j" % "slf4j-simple" % Versions.slf4jSimple
         )
 
+      def withRufio: Project =
+        p.settings(
+          libraryDependencies += "com.htmlism" %% "rufio-cats" % Versions.rufio
+        )
+
       def withHtmlTemplating =
         p
           .settings(

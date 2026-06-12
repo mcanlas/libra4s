@@ -8,7 +8,7 @@ import org.http4s.dsl.io.*
 import org.http4s.scalatags.*
 import org.http4s.{scalatags as _, *}
 
-import com.htmlism.libra4s.core.FileSystemIO
+import com.htmlism.libra4s.core.ClassFiles
 import com.htmlism.libra4s.core.JavaDisassembler
 import com.htmlism.libra4s.core.ScalaCompiler
 
@@ -38,8 +38,8 @@ object DecompilerRoutes:
               )
           .semiflatMap: (compilerOutputDir, phases) =>
             for
-              classFiles <- FileSystemIO
-                .findClassFiles(compilerOutputDir)
+              classFiles <- ClassFiles
+                .findUnder(compilerOutputDir)
 
               response <-
                 if classFiles.nonEmpty then

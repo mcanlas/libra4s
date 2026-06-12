@@ -8,7 +8,7 @@ import io.circe.Encoder
 import io.circe.parser.decode
 import io.circe.syntax.*
 
-import com.htmlism.libra4s.core.FileSystemIO
+import com.htmlism.rufio.cats.io.syntax.*
 
 final class TemporaryJsonFileCache(root: Path) extends JsonFileCache:
   def get[A](a: A)(using Cacheable[A], Decoder[A], Encoder[A]): IO[Option[A]] =
@@ -16,15 +16,14 @@ final class TemporaryJsonFileCache(root: Path) extends JsonFileCache:
       pathFor(a)
 
     for
-      exists <- FileSystemIO
-        .exists(path)
+      exists <- path.exists
 
       payload <- if exists then readPayload[A](path).map(Some(_)) else IO.pure(None)
     yield payload
 
   def write[A](a: A)(using Cacheable[A], Decoder[A], Encoder[A]): IO[A] =
-    for _ <- FileSystemIO
-        .writeString(pathFor(a), a.asJson.noSpaces)
+    for _ <- pathFor(a)
+        .writeString(a.asJson.noSpaces)
     yield a
 
   private def pathFor[A](a: A)(using Cacheable[A]) =
@@ -33,8 +32,7 @@ final class TemporaryJsonFileCache(root: Path) extends JsonFileCache:
 
   private def readPayload[A](path: Path)(using Decoder[A]) =
     for
-      json <- FileSystemIO
-        .readString(path)
+      json <- path.readString
 
       payload <- IO
         .fromEither:

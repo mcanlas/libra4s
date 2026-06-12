@@ -23,6 +23,7 @@ lazy val web =
 lazy val core =
   module("core")
     .withEffectMonad
+    .withRufio
     .withJson
     .withLogging
     .withTesting
