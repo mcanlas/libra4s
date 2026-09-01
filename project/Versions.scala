@@ -6,5 +6,5 @@ object Versions {
   val rufio           = "319-07bde687"
   val scalatags       = "0.13.1"
   val slf4jSimple     = "2.0.18"
-  val weaver          = "0.8.4"
+  val weaver          = "0.13.0"
 }
